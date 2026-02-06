@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react'
-import appConfig from '@/configs/app.config'
-import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useAppSelector, useAppDispatch } from '@/store/hook'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { authService } from '@/services/auth-service'
 import { signInSuccess, setUser } from '@/store/slices/auth'
-
-const { unAuthenticatedEntryPath } = appConfig
 
 const ProtectedRoute = () => {
   const authenticated = useAppSelector((state) => state.auth.session.signedIn)
   const [checking, setChecking] = useState(!authenticated)
   const dispatch = useAppDispatch()
-  const location = useLocation()
 
   // Silent refresh: try to restore session from httpOnly cookie
   useEffect(() => {
@@ -55,13 +50,9 @@ const ProtectedRoute = () => {
     return null
   }
 
+  // Not authenticated → redirect to home (auth is handled via modal)
   if (!authenticated) {
-    return (
-      <Navigate
-        replace
-        to={`${unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${location.pathname}`}
-      />
-    )
+    return <Navigate replace to="/" />
   }
 
   return <Outlet />

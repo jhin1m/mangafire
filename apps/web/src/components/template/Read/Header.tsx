@@ -270,13 +270,13 @@ const Header = () => {
         onClose={handleCloseModal}
         open={openModal === MODAL_AUTH_ENUM.LOGIN}
       >
-        <Login onOpen={handleOpenModal} />
+        <Login onOpen={handleOpenModal} onClose={handleCloseModal} />
       </Modal>
       <Modal
         onClose={handleCloseModal}
         open={openModal === MODAL_AUTH_ENUM.REGISTER}
       >
-        <Register onOpen={handleOpenModal} />
+        <Register onOpen={handleOpenModal} onClose={handleCloseModal} />
       </Modal>
       <Modal
         onClose={handleCloseModal}

@@ -13,7 +13,7 @@ const AuthorityGuard = (props: AuthorityGuardProps) => {
 
   const roleMatched = useAuthority(userAuthority, authority)
 
-  return <>{roleMatched ? children : <Navigate to="/sign-in" />}</>
+  return <>{roleMatched ? children : <Navigate to="/" />}</>
 }
 
 export default AuthorityGuard
