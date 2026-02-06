@@ -1,22 +1,25 @@
-import type { Manga, Genre } from '@mangafire/shared/types'
+import type { Genre } from '@mangafire/shared/types'
+import type { MangaListItem } from '@/services/manga-service'
 
 import { Card, Loading } from '@/components/shared'
 import { useMangaList } from '@/hooks/use-manga-list'
+import { mapChaptersForCard } from '@/utils/format-manga'
 
-function toGenreItem(m: Manga): Genre {
-  const typeMap: Record<string, string> = {
-    manga: 'Manga',
-    manhwa: 'Manhwa',
-    manhua: 'Manhua',
-    one_shot: 'One-shot',
-    doujinshi: 'Doujinshi',
-  }
+const TYPE_MAP: Record<string, string> = {
+  manga: 'Manga',
+  manhwa: 'Manhwa',
+  manhua: 'Manhua',
+  one_shot: 'One-shot',
+  doujinshi: 'Doujinshi',
+}
 
+function toGenreItem(m: MangaListItem): Genre {
   return {
     image: m.coverImage || '/placeholder.jpg',
-    type: typeMap[m.type] || m.type,
+    type: TYPE_MAP[m.type] || m.type,
     title: m.title,
-    chapters: [],
+    slug: m.slug,
+    chapters: mapChaptersForCard(m.slug, m.latestChapters),
   }
 }
 

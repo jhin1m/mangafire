@@ -22,6 +22,7 @@ import {
   fetchMangaWithoutGenreFilter,
   fetchMangaGenres,
   updateMangaGenreAssociations,
+  enrichMangaList,
 } from './manga-helpers'
 
 export const mangaRoutes = new Hono()
@@ -43,8 +44,9 @@ mangaRoutes.get('/', zValidator('query', mangaQueryParamsSchema), async (c) => {
       offset,
       limit
     )
+    const enriched = await enrichMangaList(items)
     const meta = calculatePagination(total, params)
-    return successResponse(c, items, meta)
+    return successResponse(c, enriched, meta)
   }
 
   // Without genreId filter, standard query
@@ -55,8 +57,9 @@ mangaRoutes.get('/', zValidator('query', mangaQueryParamsSchema), async (c) => {
     offset,
     limit
   )
+  const enriched = await enrichMangaList(items)
   const meta = calculatePagination(total, params)
-  return successResponse(c, items, meta)
+  return successResponse(c, enriched, meta)
 })
 
 // GET /:slug - Get single manga by slug

@@ -7,7 +7,7 @@ type TrendingItem = {
   desc: string
   releasing: string
   chapterAndVolume: string
-  genres: string[]
+  genres: { name: string; slug: string }[]
 }
 
 type TrendingCardProps = {
@@ -43,8 +43,8 @@ function TrendingCard(props: TrendingCardProps) {
           <p>{item.chapterAndVolume}</p>
           <div>
             {item.genres.map((genre) => (
-              <Link key={genre} to="/genre/comedy">
-                {genre}
+              <Link key={genre.slug} to={`/genre/${genre.slug}`}>
+                {genre.name}
               </Link>
             ))}
           </div>

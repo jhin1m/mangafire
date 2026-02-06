@@ -6,7 +6,9 @@ import { Filter, Head } from './components'
 import { Card, Loading } from '@/components/shared'
 import { Pagination } from '@/components/ui'
 import { useMangaList } from '@/hooks/use-manga-list'
-import type { Manga, MangaQueryParams, MangaStatus, MangaType } from '@mangafire/shared/types'
+import type { MangaQueryParams, MangaStatus, MangaType } from '@mangafire/shared/types'
+import type { MangaListItem } from '@/services/manga-service'
+import { mapChaptersForCard } from '@/utils/format-manga'
 
 function buildApiParams(searchParams: URLSearchParams): MangaQueryParams {
   const params: MangaQueryParams = { limit: 30 }
@@ -30,12 +32,13 @@ function buildApiParams(searchParams: URLSearchParams): MangaQueryParams {
   return params
 }
 
-function mapMangaToCard(m: Manga) {
+function mapMangaToCard(m: MangaListItem) {
   return {
     image: m.coverImage || '/placeholder.jpg',
     type: m.type.charAt(0).toUpperCase() + m.type.slice(1),
     title: m.title,
-    chapters: [] as { info: string; date: string; lang: null }[],
+    slug: m.slug,
+    chapters: mapChaptersForCard(m.slug, m.latestChapters),
   }
 }
 

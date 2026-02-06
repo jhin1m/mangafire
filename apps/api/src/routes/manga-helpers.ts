@@ -1,6 +1,6 @@
-import { eq, and, ilike, sql, desc, asc } from 'drizzle-orm'
+import { eq, and, ilike, sql, desc, asc, inArray } from 'drizzle-orm'
 import { db } from '../db/client'
-import { manga, mangaGenres, genres } from '../db/schema'
+import { manga, mangaGenres, genres, chapters } from '../db/schema'
 import type { MangaQueryParams } from '@mangafire/shared/types'
 
 /** Escape special ILIKE characters to prevent wildcard injection */
@@ -164,4 +164,77 @@ export async function updateMangaGenreAssociations(
       }))
     )
   }
+}
+
+/**
+ * Batch-fetches genres and latest 3 chapters for a list of manga IDs.
+ * Returns enriched manga array with `genres` and `latestChapters` attached.
+ */
+export async function enrichMangaList<T extends { id: number }>(items: T[]) {
+  if (items.length === 0) return []
+
+  const mangaIds = items.map((m) => m.id)
+
+  // Batch fetch genres for all manga
+  const genreRows = await db
+    .select({
+      mangaId: mangaGenres.mangaId,
+      id: genres.id,
+      name: genres.name,
+      slug: genres.slug,
+    })
+    .from(mangaGenres)
+    .innerJoin(genres, eq(mangaGenres.genreId, genres.id))
+    .where(inArray(mangaGenres.mangaId, mangaIds))
+
+  // Group genres by mangaId
+  const genresByMangaId: Record<
+    number,
+    { id: number; name: string; slug: string }[]
+  > = {}
+  for (const row of genreRows) {
+    if (!genresByMangaId[row.mangaId]) genresByMangaId[row.mangaId] = []
+    genresByMangaId[row.mangaId].push({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+    })
+  }
+
+  // Batch fetch latest 3 chapters per manga, ordered by createdAt desc
+  const chapterRows = await db
+    .select({
+      mangaId: chapters.mangaId,
+      number: chapters.number,
+      title: chapters.title,
+      language: chapters.language,
+      createdAt: chapters.createdAt,
+    })
+    .from(chapters)
+    .where(inArray(chapters.mangaId, mangaIds))
+    .orderBy(desc(chapters.createdAt))
+
+  // Group chapters by mangaId, keep only first 3 per manga
+  const chaptersByMangaId: Record<
+    number,
+    { number: string; title: string | null; language: string; createdAt: Date }[]
+  > = {}
+  for (const row of chapterRows) {
+    if (!chaptersByMangaId[row.mangaId]) chaptersByMangaId[row.mangaId] = []
+    if (chaptersByMangaId[row.mangaId].length < 3) {
+      chaptersByMangaId[row.mangaId].push({
+        number: row.number,
+        title: row.title,
+        language: row.language,
+        createdAt: row.createdAt,
+      })
+    }
+  }
+
+  // Merge enrichment data into each manga item
+  return items.map((item) => ({
+    ...item,
+    genres: genresByMangaId[item.id] || [],
+    latestChapters: chaptersByMangaId[item.id] || [],
+  }))
 }

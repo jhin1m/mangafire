@@ -1,6 +1,6 @@
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, EffectFade, Navigation } from 'swiper/modules'
-import type { Manga } from '@mangafire/shared/types'
+import type { MangaListItem } from '@/services/manga-service'
 
 import TrendingCard from './TrendingCard'
 import { useMangaList } from '@/hooks/use-manga-list'
@@ -12,25 +12,29 @@ type TrendingItem = {
   desc: string
   releasing: string
   chapterAndVolume: string
-  genres: string[]
+  genres: { name: string; slug: string }[]
 }
 
-function toTrendingItem(m: Manga): TrendingItem {
-  const statusMap: Record<string, string> = {
-    ongoing: 'Releasing',
-    completed: 'Completed',
-    hiatus: 'Hiatus',
-    cancelled: 'Cancelled',
-  }
+const STATUS_MAP: Record<string, string> = {
+  ongoing: 'Releasing',
+  completed: 'Completed',
+  hiatus: 'Hiatus',
+  cancelled: 'Cancelled',
+}
+
+function toTrendingItem(m: MangaListItem): TrendingItem {
+  // Build "Chap X - Vol Y" string from latest chapter
+  const latest = m.latestChapters[0]
+  const chapterAndVolume = latest ? `Chap ${latest.number}` : ''
 
   return {
     slug: m.slug,
     image: m.coverImage || '/placeholder.jpg',
     title: m.title,
     desc: m.description || '',
-    releasing: statusMap[m.status] || m.status,
-    chapterAndVolume: '',
-    genres: [],
+    releasing: STATUS_MAP[m.status] || m.status,
+    chapterAndVolume,
+    genres: m.genres.map((g) => ({ name: g.name, slug: g.slug })),
   }
 }
 

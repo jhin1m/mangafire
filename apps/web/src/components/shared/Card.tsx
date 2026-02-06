@@ -14,6 +14,7 @@ const Card = (props: CardProps) => {
   const { item, index } = props
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const mangaLink = item.slug ? `/manga/${item.slug}` : '/manga'
 
   useEffect(() => {
     if (!mounted) return
@@ -38,16 +39,16 @@ const Card = (props: CardProps) => {
           interactive={true}
           className="tippy-sidetip"
           placement={isMobile ? 'auto' : 'right'}
-          content={<TooltipContent loading={loading} />}
+          content={<TooltipContent loading={loading} item={item} />}
         >
           <Link
-            to="/manga/one-punch-man"
+            to={mangaLink}
             className="poster tooltipstered"
             data-tip="47969?/cache950"
           >
             <div>
               <img
-                src={`/images/thumb-${index + 1}.png`}
+                src={item.image}
                 alt={item.title}
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -59,11 +60,11 @@ const Card = (props: CardProps) => {
           <div>
             <span className="type">{item.type}</span>
           </div>
-          <Link to="/manga/isekai-hotel">{item.title}</Link>
+          <Link to={mangaLink}>{item.title}</Link>
           <ul className="content" data-name="chap">
             {item.chapters.map((chap, index) => (
               <li key={index}>
-                <Link to="/read/isekai-hotel/en/chapter-1">
+                <Link to={chap.link || mangaLink}>
                   <span>
                     {chap.info} <b>{chap.lang}</b>
                   </span>
@@ -82,10 +83,13 @@ export default Card
 
 type TooltipContentProps = {
   loading: boolean
+  item: Genre
 }
 
 function TooltipContent(props: TooltipContentProps) {
-  const { loading } = props
+  const { loading, item } = props
+  const mangaLink = item.slug ? `/manga/${item.slug}` : '/manga'
+
   return (
     <div className="tippy-box" style={{ margin: 0, width: 320 }}>
       <div className="tippy-content">
@@ -98,21 +102,11 @@ function TooltipContent(props: TooltipContentProps) {
               <div className="dropdown-menu dropdown-menu-right folders" />
             </div>
           </div>
-          <span>Releasing</span>
-          <Link to="/manga/lovecraftian-plague-doctor">
-            Lovecraftian Plague Doctor
-          </Link>
-          <p>
-            <i className="flag EN" />
-          </p>
-          <p>
-            <b className="text-primary">9</b> by 1 reviews
-          </p>
-          <nav>
-            <Link to="/genre/mystery">Mystery</Link>
-            <Link to="/genre/supernatural">Supernatural</Link>
-            <Link to="/genre/horror">Horror</Link>
-          </nav>
+          <span>{item.type}</span>
+          <Link to={mangaLink}>{item.title}</Link>
+          {item.chapters.length > 0 && (
+            <p>{item.chapters[0].info}</p>
+          )}
         </Loading>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { mangaService } from '@/services/manga-service'
+import { mangaService, type MangaListItem } from '@/services/manga-service'
 import { queryKeys } from './query-keys'
-import type { MangaQueryParams, Manga, PaginationMeta } from '@mangafire/shared/types'
+import type { MangaQueryParams, PaginationMeta } from '@mangafire/shared/types'
 
 export function useMangaList(params: MangaQueryParams = {}) {
   return useQuery({
@@ -15,6 +15,6 @@ export function useMangaList(params: MangaQueryParams = {}) {
 }
 
 export type UseMangaListReturn = {
-  items: Manga[]
+  items: MangaListItem[]
   meta?: PaginationMeta
 }

@@ -2,10 +2,12 @@ export type Genre = {
   image: string
   type: string
   title: string
+  slug?: string
   chapters: {
     info: string
     date: string
     lang: null
+    link?: string
   }[]
 }
 
