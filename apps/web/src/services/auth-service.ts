@@ -1,57 +1,30 @@
-import type { ApiResponse } from '@mangafire/shared/types'
 import type { AuthResponse, AuthUser, LoginDto, RegisterDto, UpdateProfileDto } from '@mangafire/shared/types'
-
-const API_BASE = '/api/auth'
-
-async function request<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // send cookies
-    ...options,
-  })
-  return res.json()
-}
+import { apiClient } from './api-client'
 
 export const authService = {
   login(dto: LoginDto) {
-    return request<AuthResponse>('/login', {
-      method: 'POST',
-      body: JSON.stringify(dto),
-    })
+    return apiClient.post<AuthResponse>('/api/auth/login', dto)
   },
 
   register(dto: Omit<RegisterDto, 'confirmPassword'> & { confirmPassword: string }) {
-    return request<AuthResponse>('/register', {
-      method: 'POST',
-      body: JSON.stringify(dto),
-    })
+    return apiClient.post<AuthResponse>('/api/auth/register', dto)
   },
 
   logout() {
-    return request<{ message: string }>('/logout', { method: 'POST' })
+    return apiClient.post<{ message: string }>('/api/auth/logout')
   },
 
   refresh() {
-    return request<AuthResponse>('/refresh', { method: 'POST' })
+    return apiClient.post<AuthResponse>('/api/auth/refresh')
   },
 
-  getProfile(token: string) {
-    return request<AuthUser>('/profile', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
+  getProfile(_token: string) {
+    // token now injected automatically by api-client
+    return apiClient.get<AuthUser>('/api/auth/profile')
   },
 
-  updateProfile(token: string, dto: UpdateProfileDto) {
-    return request<AuthUser>('/profile', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(dto),
-    })
+  updateProfile(_token: string, dto: UpdateProfileDto) {
+    // token now injected automatically by api-client
+    return apiClient.patch<AuthUser>('/api/auth/profile', dto)
   },
 }

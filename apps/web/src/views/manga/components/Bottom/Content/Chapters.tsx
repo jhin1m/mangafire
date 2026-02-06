@@ -14,7 +14,11 @@ const commentStyle: CSSProperties = {
   position: 'relative',
 }
 
-const Chapters = () => {
+type ChaptersProps = {
+  slug: string
+}
+
+const Chapters = ({ slug }: ChaptersProps) => {
   const [tab, setTab] = useState<ENUM_READ_BY>(ENUM_READ_BY.CHAPTER)
 
   const handleChangeTab = (tab: ENUM_READ_BY) => setTab(tab)
@@ -46,7 +50,7 @@ const Chapters = () => {
         </nav>
         <div className="tab-content" data-name="chapter">
           <ChaptersMenu />
-          <ChapterList tab={tab} />
+          <ChapterList tab={tab} slug={slug} />
         </div>
       </section>
       <section className="default-style">

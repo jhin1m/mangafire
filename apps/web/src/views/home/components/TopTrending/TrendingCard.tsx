@@ -1,9 +1,17 @@
 import { Link } from 'react-router-dom'
 
-import { GenreTrending } from '@/@types/common'
+type TrendingItem = {
+  slug: string
+  image: string
+  title: string
+  desc: string
+  releasing: string
+  chapterAndVolume: string
+  genres: string[]
+}
 
 type TrendingCardProps = {
-  item: GenreTrending
+  item: TrendingItem
   index: number
 }
 
@@ -26,7 +34,7 @@ function TrendingCard(props: TrendingCardProps) {
       <div className="info">
         <div className="above">
           <span>{item.releasing}</span>
-          <Link className="unit" to="/manga/detective-conan.1rx">
+          <Link className="unit" to={`/manga/${item.slug}`}>
             {item.title}
           </Link>
         </div>
@@ -42,9 +50,9 @@ function TrendingCard(props: TrendingCardProps) {
           </div>
         </div>
       </div>
-      <Link to="/manga/detective-conan.1rx" className="poster">
+      <Link to={`/manga/${item.slug}`} className="poster">
         <div>
-          <img src={`/images/thumb-${index + 1}.png`} alt={item.title} />
+          <img src={item.image} alt={item.title} />
         </div>
       </Link>
     </div>
