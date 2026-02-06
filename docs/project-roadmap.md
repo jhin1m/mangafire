@@ -107,35 +107,45 @@
 - [x] DELETE /api/manga/:slug/volumes/:number - Delete volume
 
 ### Frontend
-- [ ] Chapter list view
-- [ ] Page navigation component
-- [ ] Image loading and caching
+- [x] Chapter list view (SubPanelChapter with API data)
+- [x] Page navigation component (prev/next chapter links from API)
+- [x] Image loading from API (chapter pages rendered from API URLs)
 
 ### Status
 - **Completed**: 6 Feb 2026
-- **Commits**: TBD (implementation completed)
+- **Commits**: `b65e0c2`, `2681832`
 
-## Phase 5 - Frontend API Integration (NEXT)
+## Phase 5 - Frontend API Integration (COMPLETED)
 
 ### Data Fetching
-- [ ] Replace mock manga data with API calls
-- [ ] Implement loading and error states
-- [ ] Add request/response interceptors
-- [ ] Implement caching strategy
+- [x] Replace mock manga data with API calls (TanStack Query v5)
+- [x] Implement loading and error states (per-view Spinner + error messages)
+- [x] Add request/response interceptors (api-client with JWT auto-inject)
+- [x] Implement caching strategy (TanStack Query: 5min staleTime, 1 retry)
 
 ### Views Integration
-- [ ] Home page: fetch from GET /api/manga
-- [ ] Filter page: implement query params
-- [ ] Manga detail: fetch from GET /api/manga/:slug
-- [ ] Admin panel: create/update forms
+- [x] Home page: fetch from GET /api/manga (TopTrending, MostViewed, RecentlyUpdated, NewRelease)
+- [x] Filter page: implement query params (URL params → API params mapping)
+- [x] Manga detail: fetch from GET /api/manga/:slug (chapters, volumes, recommendations)
+- [ ] Admin panel: create/update forms (deferred to future phase)
+
+### Reader Integration
+- [x] ReaderContext provider for shared reader state
+- [x] Chapter pages from API (replaces hardcoded 56-page mock)
+- [x] Chapter navigation (prev/next) from API navigation data
+- [x] Reader header/controls wired to real manga/chapter data
 
 ### Search and Filtering
-- [ ] Full search experience with title matching
-- [ ] Genre multi-select filtering
-- [ ] Status and type dropdowns
-- [ ] Sort options (rating, views, newest)
+- [x] Genre multi-select filtering (via filter page URL params)
+- [x] Status and type dropdowns (via filter page)
+- [x] Sort options (rating, views, newest)
+- [ ] Full search with autocomplete (deferred to Phase 7)
 
-## Phase 6 - File Uploads
+### Status
+- **Completed**: 6 Feb 2026
+- **Commits**: `f40ed7a`, `31477eb`, `2681832`
+
+## Phase 6 - File Uploads (NEXT)
 
 ### Infrastructure
 - [ ] Local file storage setup
