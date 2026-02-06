@@ -88,14 +88,14 @@
 - **Completed**: 6 Feb 2026
 - **Commits**: `bb67db6`, `89f6d50`
 
-## Phase 4 - Chapters & Volumes (COMPLETED)
+## Phase 4 - Chapters & Volumes (IN PROGRESS)
 
-### Schema
+### Schema ✅
 - [x] chapters table (mangaId, number, title, slug, pages)
 - [x] volumes table (mangaId, number, title)
 - [x] chapter_pages table (chapterId, number, imageUrl)
 
-### API Endpoints
+### API Endpoints ✅
 - [x] GET /api/manga/:slug/chapters - List chapters
 - [x] POST /api/manga/:slug/chapters - Create chapter
 - [x] GET /api/manga/:slug/chapters/:number - Get chapter details
@@ -106,13 +106,33 @@
 - [x] PATCH /api/manga/:slug/volumes/:number - Update volume
 - [x] DELETE /api/manga/:slug/volumes/:number - Delete volume
 
-### Frontend
-- [x] Chapter list view (SubPanelChapter with API data)
-- [x] Page navigation component (prev/next chapter links from API)
-- [x] Image loading from API (chapter pages rendered from API URLs)
+### Frontend — Chapter List ⚠️
+- [x] Basic chapter list with numbers, titles, dates (manga detail + reader sidebar)
+- [x] Volume tabs with API data
+- [x] Loading and empty states
+- [ ] Chapter list pagination (currently fetches all — breaks with 500+ chapters)
+- [ ] Chapter search functionality (input exists but non-functional)
+- [ ] Remove hardcoded 200-chapter limit in reader sidebar
+
+### Frontend — Page Navigation ✅
+- [x] Prev/next chapter buttons from API navigation data
+- [x] Progress bar with correct page count from API
+- [x] Header navigation (prev/next page, prev/next chapter)
+- [x] Disabled states at navigation edges
+- [ ] Page thumbnails (currently text-only "Page 1, 2..." — no actual thumbnails)
+
+### Frontend — Image Loading ⚠️
+- [x] Display chapter page images from API URLs
+- [x] Preload 4 pages ahead (double page mode)
+- [x] Viewport-based page tracking (long strip mode)
+- [ ] Lazy loading (all images load at once — poor on slow connections)
+- [ ] Image placeholder/skeleton while loading
+- [ ] Error handling for broken images (no fallback, no retry)
+- [ ] Consistent referrerPolicy across all page modes
 
 ### Status
-- **Completed**: 6 Feb 2026
+- **Backend**: Completed 6 Feb 2026
+- **Frontend**: In progress — basic functionality works, needs pagination + image optimization
 - **Commits**: `b65e0c2`, `2681832`
 
 ## Phase 5 - Frontend API Integration (COMPLETED)
