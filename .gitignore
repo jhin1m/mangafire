@@ -12,6 +12,19 @@ dist
 dist-ssr
 *.local
 
+# Monorepo
+apps/*/dist
+packages/*/dist
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+pgdata/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

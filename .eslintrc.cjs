@@ -33,7 +33,7 @@ module.exports = {
       { allowConstantExport: true },
     ],
     // 'import/no-unresolved': 'off',
-    "react/react-in-jsx-scope": "",
+    "react/react-in-jsx-scope": "off",
     "import/first": "warn",
     "import/default": "off",
     "import/newline-after-import": "warn",

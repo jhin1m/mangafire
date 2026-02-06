@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit'
 import { themeConfig } from '@/configs/theme.config'
 
 import {
@@ -43,7 +43,7 @@ const initialState: ThemeState = {
   isSwiping: false,
 }
 
-export const themeSlice = createSlice({
+export const themeSlice: Slice<ThemeState> = createSlice({
   name: 'theme',
   initialState,
   reducers: {
@@ -68,7 +68,7 @@ export const themeSlice = createSlice({
     setReadDirection: (state, action: PayloadAction<ReadDirectionType>) => {
       state.readDirection = action.payload
     },
-    setPreviousLayout: (state, action) => {
+    setPreviousLayout: (state, action: PayloadAction<LayoutType | undefined>) => {
       state.layout.previousType = action.payload
     },
     setPageIndex: (state, action: PayloadAction<number>) => {

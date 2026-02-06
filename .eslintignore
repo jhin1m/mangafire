@@ -4,3 +4,7 @@ dist/
 .eslintrc.js
 env.d.ts
 
+# Monorepo
+apps/*/dist/
+packages/*/dist/
+

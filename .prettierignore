@@ -24,3 +24,7 @@ build
 *.sln
 *.sw?
 .vite-cache/
+
+# Monorepo
+apps/*/dist/
+packages/*/dist/

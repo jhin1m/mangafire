@@ -18,6 +18,7 @@ export default defineConfig({
     alias: {
       '@': path.join(__dirname, 'src'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   build: {
     outDir: './dist',

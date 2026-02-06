@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mangafire-db
+    environment:
+      POSTGRES_USER: mangafire
+      POSTGRES_PASSWORD: mangafire
+      POSTGRES_DB: mangafire
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
