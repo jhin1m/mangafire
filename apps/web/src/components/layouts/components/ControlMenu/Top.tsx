@@ -11,11 +11,13 @@ import { SubPanelType } from '@/@types/theme'
 import { SUB_PANEL_ENUM } from '@/constants/panel.constant'
 import { ChapVolSwitch, LangSwitch } from './Buttons'
 import scrollToPage from '@/utils/scrollToPage'
+import { useReader } from '@/contexts/reader-context'
 
 const Top = () => {
   const dispatch = useAppDispatch()
   const { isShowMenu, pageIndex, isShowSubPanel, activeSwiper } =
     useAppSelector((state) => state.theme)
+  const { totalPages, chapterNumber, mangaSlug, navigation, language } = useReader()
 
   const onToggleMenu = () => {
     dispatch(setShowMenu(!isShowMenu))
@@ -30,7 +32,7 @@ const Top = () => {
   }
 
   const handleNextPage = () => {
-    if (pageIndex < 56 && pageIndex >= 1) {
+    if (pageIndex < totalPages && pageIndex >= 1) {
       dispatch(setPageIndex(pageIndex + 1))
       dispatch(setActiveSwiper(activeSwiper + 1))
       scrollToPage(pageIndex + 1)
@@ -44,7 +46,7 @@ const Top = () => {
   return (
     <>
       <div className="head">
-        <Link to="/manga/jujutsu-kaisen.rl2vm">Jujutsu Kaisen</Link>
+        <Link to={`/manga/${mangaSlug}`}>{mangaSlug}</Link>
         <div
           onClick={onToggleMenu}
           className="close-primary btn btn-secondary1 tooltipz"
@@ -81,19 +83,27 @@ const Top = () => {
       </nav>
       {/* Chapter */}
       <nav>
-        <button id="number-go-left">
+        <Link
+          to={navigation?.prev ? `/read/${mangaSlug}/${language}/chapter-${navigation.prev.number}` : '#'}
+          id="number-go-left"
+          className={!navigation?.prev ? 'disabled' : ''}
+        >
           <i className="fa-regular fa-chevron-left"></i>
-        </button>
+        </Link>
         <button
           className="number-toggler"
           onClick={() => handleTogglePanel(SUB_PANEL_ENUM.PANEL_CHAPTER)}
         >
-          <b className="current-type-number text-title">chapter 240</b>
+          <b className="current-type-number text-title">chapter {chapterNumber}</b>
           <i className="fa-solid fa-sort fa-sm"></i>
         </button>
-        <button id="number-go-right">
+        <Link
+          to={navigation?.next ? `/read/${mangaSlug}/${language}/chapter-${navigation.next.number}` : '#'}
+          id="number-go-right"
+          className={!navigation?.next ? 'disabled' : ''}
+        >
           <i className="fa-regular fa-chevron-right"></i>
-        </button>
+        </Link>
       </nav>
       {/* Comment */}
       <button
@@ -103,7 +113,7 @@ const Top = () => {
       >
         <i className="fa-light fa-message-dots fa-flip-horizontal fa-lg"></i>
         <span>
-          <span className="current-type-number text-title">chapter 240 </span>
+          <span className="current-type-number text-title">chapter {chapterNumber} </span>
           Comment
         </span>
       </button>
@@ -116,7 +126,7 @@ const Top = () => {
         <div className="dropdown-menu dropdown-menu-right w-100 folders"></div>
       </div>
 
-      <Link to="/manga/jujutsu-kaisen.rl2vm" className="jb-btn">
+      <Link to={`/manga/${mangaSlug}`} className="jb-btn">
         <i className="fa-light fa-lg fa-circle-info"></i>
         <span>Manga Detail</span>
       </Link>

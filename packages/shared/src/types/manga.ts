@@ -24,6 +24,7 @@ export type Poster = {
   image: string
   title: string
   link?: string
+  views?: number
 }
 
 export enum ENUM_READ_BY {

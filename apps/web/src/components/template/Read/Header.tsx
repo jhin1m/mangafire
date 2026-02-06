@@ -12,6 +12,7 @@ import { SUB_PANEL_ENUM } from '@/constants/panel.constant'
 import Modal, { Forgot, Login, Register } from '@/components/ui/Modal'
 import { MODAL_AUTH_ENUM } from '@/@types/modal'
 import { useClickOutside } from '@/utils/hooks'
+import { useReader } from '@/contexts/reader-context'
 
 export const genres = [
   { title: 'Action', link: '/genre/action' },
@@ -67,6 +68,7 @@ const Header = () => {
     (state) => state.theme
   )
   const dispatch = useAppDispatch()
+  const { chapterNumber, totalChapters, totalPages } = useReader()
   const navRef = useClickOutside(() => handleCloseNav())
 
   const handleOpen = () => setOpen(true)
@@ -221,8 +223,8 @@ const Header = () => {
             >
               <span className="current-viewtype text-title">chapter</span>{' '}
               <span>
-                <b className="current-number">241</b>/
-                <b className="latest-number">241</b>
+                <b className="current-number">{chapterNumber}</b>/
+                <b className="latest-number">{totalChapters || '?'}</b>
               </span>
             </div>
             <div
@@ -233,7 +235,7 @@ const Header = () => {
               <span>Page</span>{' '}
               <span>
                 <b className="current-page">{pageIndex}</b>/
-                <b className="total-page">56</b>
+                <b className="total-page">{totalPages || '?'}</b>
               </span>
             </div>
             <button

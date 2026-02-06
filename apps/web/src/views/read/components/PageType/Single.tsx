@@ -11,10 +11,7 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '@/store'
-
-const imagePath = (index: number) => {
-  return `/temp/0${index + 1 >= 10 ? index + 1 : `0${index + 1}`}.jpg`
-}
+import { useReader } from '@/contexts/reader-context'
 
 type SingleProps = {}
 
@@ -23,6 +20,9 @@ const Single = forwardRef<React.RefObject<SwiperRef>, SingleProps>(
     const dispatch = useAppDispatch()
     const { pageType, fitType, activeSwiper, pageIndex, isSwiping } =
       useAppSelector((state) => state.theme)
+
+    // Get real pages from API
+    const { pages } = useReader()
 
     useEffect(() => {
       if (!ref) return
@@ -49,10 +49,10 @@ const Single = forwardRef<React.RefObject<SwiperRef>, SingleProps>(
             dispatch(setActiveSwiper(swiper.activeIndex + 1))
           }}
         >
-          {new Array(56).fill(undefined).map((item, index) => (
-            <SwiperSlide key={index} className="img loaded">
+          {pages.map((page) => (
+            <SwiperSlide key={page.id} className="img loaded">
               <img
-                src={imagePath(index)}
+                src={page.imageUrl}
                 className={fitClassName[fitType]}
                 referrerPolicy="no-referrer"
               />
@@ -65,10 +65,10 @@ const Single = forwardRef<React.RefObject<SwiperRef>, SingleProps>(
     if (!isSwiping) {
       return (
         <div className={classNames('page', fitClassName[fitType])}>
-          {new Array(56).fill(undefined).map((item, index) => (
+          {pages.map((page, index) => (
             <Image
-              key={index}
-              src={imagePath(index)}
+              key={page.id}
+              src={page.imageUrl}
               number={index + 1}
               wrapperClassName={classNames(
                 'loaded',

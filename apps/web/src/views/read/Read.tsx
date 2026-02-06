@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import classNames from 'classnames'
 import { SwiperRef } from 'swiper/react'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FIT_ENUM } from '@/constants/fit.constant'
 import { PAGE_ENUM } from '@/constants/page.constant'
 import {
@@ -11,6 +11,8 @@ import {
   useAppSelector,
 } from '@/store'
 import { DoubleImage, LongStripImage, Single } from './components'
+import { useReader } from '@/contexts/reader-context'
+import Spinner from '@/components/ui/Spinner'
 
 export const fitClassName = {
   [FIT_ENUM.FIT_WIDTH]: 'fit-w',
@@ -19,17 +21,16 @@ export const fitClassName = {
   [FIT_ENUM.FIT_NO_LIMIT]: '',
 }
 
-const imagePath = (index: number) => {
-  return `/temp/0${index + 1 >= 10 ? index + 1 : `0${index + 1}`}.jpg`
-}
-
 const Read = () => {
   const swiperRef = useRef<SwiperRef>(null)
   const [isClickable, setIsClickable] = useState(true)
-  const { slug, lang, chapter } = useParams()
   const dispatch = useAppDispatch()
   const { pageType, pageIndex, fitType, activeSwiper, isSwiping } =
     useAppSelector((state) => state.theme)
+
+  // Real data from API via ReaderContext
+  const { pages, navigation, totalPages, mangaSlug, language, isLoading, isError } =
+    useReader()
 
   const handleChangePage = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -47,12 +48,44 @@ const Read = () => {
       dispatch(setActiveSwiper(activeSwiper - 1))
       isSwiping && swiperRef.current?.swiper.slidePrev()
     }
-    if (rightPercentage <= 30 && pageIndex < 56 && pageIndex >= 1) {
+    if (rightPercentage <= 30 && pageIndex < totalPages && pageIndex >= 1) {
       dispatch(setPageIndex(pageIndex + 1))
       dispatch(setActiveSwiper(activeSwiper + 1))
       isSwiping && swiperRef.current?.swiper.slideNext()
     }
     setTimeout(() => setIsClickable(true), isSwiping ? 300 : 0)
+  }
+
+  // Build chapter navigation links
+  const prevChapterLink = navigation?.prev
+    ? `/read/${mangaSlug}/${language}/chapter-${navigation.prev.number}`
+    : null
+  const nextChapterLink = navigation?.next
+    ? `/read/${mangaSlug}/${language}/chapter-${navigation.next.number}`
+    : null
+
+  if (isLoading) {
+    return (
+      <div className="pages" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="pages" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <p className="text-muted">Failed to load chapter. Please try again.</p>
+      </div>
+    )
+  }
+
+  if (pages.length === 0) {
+    return (
+      <div className="pages" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <p className="text-muted">No pages available for this chapter.</p>
+      </div>
+    )
   }
 
   return (
@@ -67,8 +100,8 @@ const Read = () => {
     >
       {pageType === PAGE_ENUM.LONG_STRIP && (
         <>
-          {new Array(56).fill(undefined).map((item, index) => (
-            <LongStripImage key={index} src={imagePath(index)} index={index} />
+          {pages.map((page, index) => (
+            <LongStripImage key={page.id} src={page.imageUrl} index={index} />
           ))}
         </>
       )}
@@ -77,8 +110,8 @@ const Read = () => {
       />
       {pageType === PAGE_ENUM.DOUBLE && (
         <div className={classNames('page', fitClassName[fitType])}>
-          {new Array(56).fill(undefined).map((item, index) => (
-            <DoubleImage key={index} src={imagePath(index)} index={index + 1} />
+          {pages.map((page, index) => (
+            <DoubleImage key={page.id} src={page.imageUrl} index={index + 1} />
           ))}
         </div>
       )}
@@ -89,16 +122,30 @@ const Read = () => {
           pageType !== PAGE_ENUM.LONG_STRIP && 'abs show'
         )}
       >
-        <Link to="#" className="prev">
-          <i className="ltr-icon fa-light fa-arrow-left mr-1"></i>
-          <i className="rtl-icon fa-light fa-arrow-right ml-1"></i>
-          Previous chapter
-        </Link>
-        <Link to="#" className="next">
-          Next chapter
-          <i className="ltr-icon fa-light fa-arrow-right ml-1"></i>
-          <i className="rtl-icon fa-light fa-arrow-left mr-1"></i>
-        </Link>
+        {prevChapterLink ? (
+          <Link to={prevChapterLink} className="prev">
+            <i className="ltr-icon fa-light fa-arrow-left mr-1"></i>
+            <i className="rtl-icon fa-light fa-arrow-right ml-1"></i>
+            Previous chapter
+          </Link>
+        ) : (
+          <span className="prev disabled">
+            <i className="ltr-icon fa-light fa-arrow-left mr-1"></i>
+            Previous chapter
+          </span>
+        )}
+        {nextChapterLink ? (
+          <Link to={nextChapterLink} className="next">
+            Next chapter
+            <i className="ltr-icon fa-light fa-arrow-right ml-1"></i>
+            <i className="rtl-icon fa-light fa-arrow-left mr-1"></i>
+          </Link>
+        ) : (
+          <span className="next disabled">
+            Next chapter
+            <i className="ltr-icon fa-light fa-arrow-right ml-1"></i>
+          </span>
+        )}
       </div>
     </div>
   )

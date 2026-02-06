@@ -24,8 +24,10 @@ import {
 } from './components/SubPanel'
 import { PAGE_ENUM } from '@/constants/page.constant'
 import scrollToPage from '@/utils/scrollToPage'
+import { ReaderProvider, useReader } from '@/contexts/reader-context'
 
-const ReadLayout = () => {
+// Inner component that uses ReaderContext (must be inside ReaderProvider)
+const ReadLayoutInner = () => {
   const {
     pageType,
     isShowMenu,
@@ -37,6 +39,7 @@ const ReadLayout = () => {
   const [isClickable, setIsClickable] = useState(true)
   const dispatch = useAppDispatch()
   const { height } = useWindowDimensions()
+  const { totalPages } = useReader()
 
   useEffect(() => {
     if (!isShowHeader && !isShowMenu) {
@@ -55,7 +58,7 @@ const ReadLayout = () => {
     return () => {
       window.removeEventListener('keyup', handleKeyPress)
     }
-  }, [pageIndex, isShowMenu, isShowHeader])
+  }, [pageIndex, isShowMenu, isShowHeader, totalPages])
 
   function handleKeyPress(event: KeyboardEvent) {
     switch (event.key) {
@@ -77,7 +80,7 @@ const ReadLayout = () => {
         }
         return
       case 'ArrowRight':
-        if (pageIndex < 56 && pageIndex >= 1) {
+        if (pageIndex < totalPages && pageIndex >= 1) {
           dispatch(setPageIndex(pageIndex + 1))
           dispatch(setActiveSwiper(activeSwiper + 1))
           scrollToPage(pageIndex + 1)
@@ -122,7 +125,7 @@ const ReadLayout = () => {
             <div
               id="page-wrapper"
               className={classNames(
-                !isMobile && pageIndex === 56 && !isSwiping && 'on-last-page'
+                !isMobile && totalPages > 0 && pageIndex === totalPages && !isSwiping && 'on-last-page'
               )}
               onClick={handleCloseControl}
             >
@@ -139,5 +142,12 @@ const ReadLayout = () => {
     </>
   )
 }
+
+// Outer wrapper: provides ReaderContext to all child components
+const ReadLayout = () => (
+  <ReaderProvider>
+    <ReadLayoutInner />
+  </ReaderProvider>
+)
 
 export default ReadLayout

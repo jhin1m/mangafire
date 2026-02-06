@@ -11,11 +11,13 @@ import {
 import scrollToPage from '@/utils/scrollToPage'
 import { useWindowDimensions } from '@/utils/hooks'
 import { SUB_PANEL_ENUM } from '@/constants/panel.constant'
+import { useReader } from '@/contexts/reader-context'
 
 const SubPanelPage = () => {
   const { isShowSubPanel, pageIndex } = useAppSelector((state) => state.theme)
   const dispatch = useAppDispatch()
   const { height } = useWindowDimensions()
+  const { totalPages } = useReader()
 
   const handleClosePanel = () => dispatch(setShowSubPanel(null))
 
@@ -24,6 +26,8 @@ const SubPanelPage = () => {
     dispatch(setActiveSwiper(page))
     scrollToPage(page)
   }
+
+  if (totalPages === 0) return null
 
   return (
     <div
@@ -46,11 +50,10 @@ const SubPanelPage = () => {
         </button>
       </div>
       <ul>
-        {new Array(56).fill(undefined).map((chapter, index) => (
+        {Array.from({ length: totalPages }, (_, index) => (
           <li key={index}>
             <Link
               to="#"
-              title={chapter?.name}
               className={classNames(pageIndex === index + 1 && 'active')}
               onClick={() => handleChangePage(index + 1)}
             >

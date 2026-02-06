@@ -11,6 +11,7 @@ function toPosterItem(m: Manga): PosterType {
     image: m.coverImage || '/placeholder.jpg',
     title: m.title,
     link: `/manga/${m.slug}`,
+    views: m.views,
   }
 }
 

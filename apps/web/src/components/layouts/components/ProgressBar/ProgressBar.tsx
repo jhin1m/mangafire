@@ -6,10 +6,11 @@ import {
   useAppSelector,
 } from '@/store'
 import scrollToPage from '@/utils/scrollToPage'
+import { useReader } from '@/contexts/reader-context'
 
 const ProgressBar = () => {
   const { progressPosition, pageIndex } = useAppSelector((state) => state.theme)
-
+  const { totalPages } = useReader()
   const dispatch = useAppDispatch()
 
   const handleChangePage = (page: number) => {
@@ -18,26 +19,26 @@ const ProgressBar = () => {
     scrollToPage(page)
   }
 
+  if (totalPages === 0) return null
+
   return (
     <div id="progress-bar" className={classNames('d-flex', progressPosition)}>
       <div>
         <p>1</p>
         <ul>
-          {new Array(56).fill(undefined).map((item, index) => {
-            return (
-              <li
-                key={index}
-                data-page={index + 1}
-                data-name={index + 1}
-                className={classNames(pageIndex === index + 1 && 'active')}
-                onClick={() => handleChangePage(index + 1)}
-              >
-                <div>{index + 1}</div>
-              </li>
-            )
-          })}
+          {Array.from({ length: totalPages }, (_, index) => (
+            <li
+              key={index}
+              data-page={index + 1}
+              data-name={index + 1}
+              className={classNames(pageIndex === index + 1 && 'active')}
+              onClick={() => handleChangePage(index + 1)}
+            >
+              <div>{index + 1}</div>
+            </li>
+          ))}
         </ul>
-        <p className="total-page">56</p>
+        <p className="total-page">{totalPages}</p>
       </div>
     </div>
   )

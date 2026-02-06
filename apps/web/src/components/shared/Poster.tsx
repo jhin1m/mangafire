@@ -10,12 +10,12 @@ type PosterProps = {
 const Poster = (props: PosterProps) => {
   const { item, index } = props
   return (
-    <Link to="/manga/one-punch-man.oo4">
+    <Link to={item.link || '#'}>
       {index ? <b>{index}</b> : null}
       <div className="poster">
         <div>
           <img
-            src={`/images/thumb-${index}.png`}
+            src={item.image}
             alt={item.title}
             loading="lazy"
             referrerPolicy="no-referrer"

@@ -25,6 +25,9 @@ packages/*/dist
 docker-compose.override.yml
 pgdata/
 
+# Generated files
+repomix-output.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
