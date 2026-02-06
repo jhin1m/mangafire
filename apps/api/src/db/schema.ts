@@ -91,6 +91,8 @@ export const mangaGenres = pgTable(
 // Relations for Drizzle ORM query API
 export const mangaRelations = relations(manga, ({ many }) => ({
   mangaGenres: many(mangaGenres),
+  volumes: many(volumes),
+  chapters: many(chapters),
 }))
 
 export const genreRelations = relations(genres, ({ many }) => ({
@@ -154,5 +156,111 @@ export const refreshTokenRelations = relations(refreshTokens, ({ one }) => ({
   user: one(users, {
     fields: [refreshTokens.userId],
     references: [users.id],
+  }),
+}))
+
+// ─── Volumes & Chapters ─────────────────────────────────────────────
+
+// Volumes table — groups chapters into numbered volumes
+export const volumes = pgTable(
+  'volumes',
+  {
+    id: serial('id').primaryKey(),
+    mangaId: integer('manga_id')
+      .notNull()
+      .references(() => manga.id, { onDelete: 'cascade' }),
+    number: integer('number').notNull(),
+    title: text('title'),
+    coverImage: text('cover_image'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    mangaIdIdx: index('volumes_manga_id_idx').on(table.mangaId),
+    uniqueMangaVolume: unique('volumes_manga_number_unique').on(
+      table.mangaId,
+      table.number
+    ),
+  })
+)
+
+// Chapters table — number stored as text to support decimals ("10.5")
+export const chapters = pgTable(
+  'chapters',
+  {
+    id: serial('id').primaryKey(),
+    mangaId: integer('manga_id')
+      .notNull()
+      .references(() => manga.id, { onDelete: 'cascade' }),
+    volumeId: integer('volume_id').references(() => volumes.id, {
+      onDelete: 'set null',
+    }),
+    number: text('number').notNull(),
+    title: text('title'),
+    slug: text('slug').notNull(),
+    language: languageEnum('language').notNull().default('en'),
+    pageCount: integer('page_count').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    mangaIdIdx: index('chapters_manga_id_idx').on(table.mangaId),
+    slugIdx: index('chapters_slug_idx').on(table.slug),
+    uniqueChapter: unique('chapters_manga_number_lang_unique').on(
+      table.mangaId,
+      table.number,
+      table.language
+    ),
+  })
+)
+
+// Chapter pages — individual images within a chapter
+export const chapterPages = pgTable(
+  'chapter_pages',
+  {
+    id: serial('id').primaryKey(),
+    chapterId: integer('chapter_id')
+      .notNull()
+      .references(() => chapters.id, { onDelete: 'cascade' }),
+    pageNumber: integer('page_number').notNull(),
+    imageUrl: text('image_url').notNull(),
+    width: integer('width'),
+    height: integer('height'),
+  },
+  (table) => ({
+    chapterIdIdx: index('chapter_pages_chapter_id_idx').on(table.chapterId),
+    uniquePage: unique('chapter_pages_chapter_page_unique').on(
+      table.chapterId,
+      table.pageNumber
+    ),
+  })
+)
+
+// ─── Volume & Chapter Relations ─────────────────────────────────────
+
+export const volumeRelations = relations(volumes, ({ one, many }) => ({
+  manga: one(manga, {
+    fields: [volumes.mangaId],
+    references: [manga.id],
+  }),
+  chapters: many(chapters),
+}))
+
+export const chapterRelations = relations(chapters, ({ one, many }) => ({
+  manga: one(manga, {
+    fields: [chapters.mangaId],
+    references: [manga.id],
+  }),
+  volume: one(volumes, {
+    fields: [chapters.volumeId],
+    references: [volumes.id],
+  }),
+  pages: many(chapterPages),
+}))
+
+export const chapterPageRelations = relations(chapterPages, ({ one }) => ({
+  chapter: one(chapters, {
+    fields: [chapterPages.chapterId],
+    references: [chapters.id],
   }),
 }))

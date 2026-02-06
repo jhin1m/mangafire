@@ -129,7 +129,8 @@ The reader has multiple configurable options managed in the theme slice:
 
 - **Framework**: Hono 4 with `@hono/node-server`
 - **Database**: PostgreSQL via Drizzle ORM + `postgres` driver
-- **Current state**: Skeleton with health check endpoint (`GET /api/health`)
+- **Endpoints**: Health check, manga CRUD, genres, authentication (JWT), chapters, volumes
+- **Auth**: JWT-based (access + refresh tokens), bcrypt password hashing, middleware for protected routes
 - **Config**: Environment variables via dotenv (see `apps/api/.env.example`)
 - **CORS**: Configured for `http://localhost:5173` (dev frontend)
 

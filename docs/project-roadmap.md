@@ -57,53 +57,65 @@
 - **Completed**: 6 Feb 2026
 - **Commits**: `669a494`
 
-## Phase 3 - Authentication (NEXT)
+## Phase 3 - Authentication (COMPLETED)
 
 ### Backend
-- [ ] JWT token generation and validation
-- [ ] Password hashing (bcrypt)
-- [ ] User table schema (email, password hash, profile)
-- [ ] Protected route middleware
+- [x] JWT token generation and validation
+- [x] Password hashing (bcrypt)
+- [x] User table schema (email, password hash, profile)
+- [x] Protected route middleware
 
 ### Frontend
-- [ ] Login form component
-- [ ] Register form component
-- [ ] Token storage (Redux + localStorage)
-- [ ] API interceptor for auth headers
-- [ ] Logout functionality
+- [x] Login form component
+- [x] Register form component
+- [x] Token storage (Redux + localStorage)
+- [x] API interceptor for auth headers
+- [x] Logout functionality
 
 ### API Endpoints
-- [ ] POST /api/auth/register - Create user account
-- [ ] POST /api/auth/login - Generate JWT token
-- [ ] POST /api/auth/logout - Invalidate session
-- [ ] GET /api/auth/profile - Get current user
-- [ ] PATCH /api/auth/profile - Update user profile
+- [x] POST /api/auth/register - Create user account
+- [x] POST /api/auth/login - Generate JWT token
+- [x] POST /api/auth/logout - Invalidate session
+- [x] GET /api/auth/profile - Get current user
+- [x] PATCH /api/auth/profile - Update user profile
 
 ### Access Control
-- [ ] Protect write endpoints (POST, PATCH, DELETE)
-- [ ] Enforce JWT validation
-- [ ] Rate limiting on auth endpoints
+- [x] Protect write endpoints (POST, PATCH, DELETE)
+- [x] Enforce JWT validation
+- [x] Rate limiting on auth endpoints
 
-## Phase 4 - Chapters & Volumes
+### Status
+- **Completed**: 6 Feb 2026
+- **Commits**: `bb67db6`, `89f6d50`
+
+## Phase 4 - Chapters & Volumes (COMPLETED)
 
 ### Schema
-- [ ] chapters table (mangaId, number, title, slug, pages)
-- [ ] volumes table (mangaId, number, title)
-- [ ] chapter_pages table (chapterId, number, imageUrl)
+- [x] chapters table (mangaId, number, title, slug, pages)
+- [x] volumes table (mangaId, number, title)
+- [x] chapter_pages table (chapterId, number, imageUrl)
 
 ### API Endpoints
-- [ ] GET /api/manga/:slug/chapters - List chapters
-- [ ] POST /api/manga/:slug/chapters - Create chapter
-- [ ] GET /api/manga/:slug/chapters/:number - Get chapter details
-- [ ] PATCH /api/manga/:slug/chapters/:number - Update chapter
-- [ ] DELETE /api/manga/:slug/chapters/:number - Delete chapter
+- [x] GET /api/manga/:slug/chapters - List chapters
+- [x] POST /api/manga/:slug/chapters - Create chapter
+- [x] GET /api/manga/:slug/chapters/:number - Get chapter details
+- [x] PATCH /api/manga/:slug/chapters/:number - Update chapter
+- [x] DELETE /api/manga/:slug/chapters/:number - Delete chapter
+- [x] GET /api/manga/:slug/volumes - List volumes
+- [x] POST /api/manga/:slug/volumes - Create volume
+- [x] PATCH /api/manga/:slug/volumes/:number - Update volume
+- [x] DELETE /api/manga/:slug/volumes/:number - Delete volume
 
 ### Frontend
 - [ ] Chapter list view
 - [ ] Page navigation component
 - [ ] Image loading and caching
 
-## Phase 5 - Frontend API Integration
+### Status
+- **Completed**: 6 Feb 2026
+- **Commits**: TBD (implementation completed)
+
+## Phase 5 - Frontend API Integration (NEXT)
 
 ### Data Fetching
 - [ ] Replace mock manga data with API calls

@@ -5,6 +5,8 @@ import { healthRoutes } from './routes/health'
 import { mangaRoutes } from './routes/manga'
 import { genreRoutes } from './routes/genres'
 import { authRoutes } from './routes/auth'
+import { chapterRoutes } from './routes/chapters'
+import { volumeRoutes } from './routes/volumes'
 import { errorHandler } from './middleware/error-handler'
 import { authMiddleware } from './middleware/auth'
 
@@ -28,9 +30,9 @@ app.route('/api/health', healthRoutes)
 app.route('/api/auth', authRoutes)
 app.route('/api/genres', genreRoutes)
 
-// Manga: GET is public, write ops (POST/PATCH/DELETE) require auth
+// Manga: GET is public, write ops (POST/PUT/PATCH/DELETE) require auth
 app.use('/api/manga/*', async (c, next) => {
-  if (['POST', 'PATCH', 'DELETE'].includes(c.req.method)) {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(c.req.method)) {
     return authMiddleware(c, next)
   }
   await next()
@@ -42,6 +44,12 @@ app.use('/api/manga', async (c, next) => {
   await next()
 })
 app.route('/api/manga', mangaRoutes)
+
+// Chapter routes: nested under manga slug
+app.route('/api/manga/:slug/chapters', chapterRoutes)
+
+// Volume routes: nested under manga slug
+app.route('/api/manga/:slug/volumes', volumeRoutes)
 
 // Start server
 const port = Number(process.env.PORT) || 3000
