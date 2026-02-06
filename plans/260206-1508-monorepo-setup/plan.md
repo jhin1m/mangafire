@@ -1,7 +1,7 @@
 ---
 title: "pnpm Monorepo Setup for MangaFire"
 description: "Convert single React app to pnpm monorepo with Hono API backend and shared types package"
-status: in-progress
+status: completed
 priority: P2
 effort: 6h
 branch: main
