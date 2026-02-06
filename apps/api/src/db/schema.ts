@@ -107,3 +107,52 @@ export const mangaGenreRelations = relations(mangaGenres, ({ one }) => ({
     references: [genres.id],
   }),
 }))
+
+// ─── Authentication Tables ───────────────────────────────────────────
+
+// Users table for authentication
+export const users = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    email: text('email').notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    username: text('username').notNull(),
+    avatar: text('avatar'),
+    role: text('role').notNull().default('user'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => ({
+    emailIdx: index('users_email_idx').on(table.email),
+  })
+)
+
+// Refresh tokens stored as SHA-256 hashes for security
+export const refreshTokens = pgTable(
+  'refresh_tokens',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index('refresh_tokens_user_id_idx').on(table.userId),
+  })
+)
+
+export const userRelations = relations(users, ({ many }) => ({
+  refreshTokens: many(refreshTokens),
+}))
+
+export const refreshTokenRelations = relations(refreshTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [refreshTokens.userId],
+    references: [users.id],
+  }),
+}))

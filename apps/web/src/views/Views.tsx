@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 import appConfig from '@/configs/app.config'
-import { protectedRoutes, publicRoutes } from '@/configs/routes.config'
+import { protectedRoutes, publicRoutes, browsingRoutes } from '@/configs/routes.config'
 
 import { ADMIN } from '@/constants/roles.constant'
 
@@ -36,6 +36,15 @@ const AllRoutes = () => {
         })}
         <Route path="*" element={<Navigate replace to="/" />} />
       </Route>
+      {browsingRoutes.map((route) => (
+        <Route
+          key={route.path}
+          path={route.path}
+          element={
+            <AppRoute routeKey={route.key} component={route.component} />
+          }
+        />
+      ))}
       <Route path="/" element={<PublicRoute />}>
         {publicRoutes.map((route) => {
           return (

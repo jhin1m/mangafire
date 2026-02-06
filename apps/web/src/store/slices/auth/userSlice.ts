@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SLICE_BASE_NAME } from './constants'
+import { signIn, signUp, signOut } from './sessionSlice'
 
 export type UserState = {
   avatar?: string
@@ -25,6 +26,19 @@ const userSlice = createSlice({
       state.userName = action.payload?.userName
       state.authority = action.payload?.authority
     },
+  },
+  extraReducers: (builder) => {
+    const handleAuthSuccess = (state: UserState, action: any) => {
+      const user = action.payload.user
+      state.userName = user.username
+      state.email = user.email
+      state.avatar = user.avatar || ''
+      state.authority = [user.role]
+    }
+
+    builder.addCase(signIn.fulfilled, handleAuthSuccess)
+    builder.addCase(signUp.fulfilled, handleAuthSuccess)
+    builder.addCase(signOut.fulfilled, () => initialState)
   },
 })
 

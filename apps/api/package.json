@@ -18,9 +18,11 @@
     "@hono/node-server": "^1.8.0",
     "@hono/zod-validator": "^0.7.6",
     "@mangafire/shared": "workspace:*",
+    "argon2": "^0.44.0",
     "dotenv": "^16.3.0",
     "drizzle-orm": "^0.29.0",
     "hono": "^4.0.0",
+    "hono-rate-limiter": "^0.5.3",
     "postgres": "^3.4.0",
     "zod": "^3.25.76"
   },
