@@ -158,11 +158,15 @@
 ### Search and Filtering
 - [x] Genre multi-select filtering (via filter page URL params)
 - [x] Status and type dropdowns (via filter page)
-- [x] Sort options (rating, views, newest)
+- [x] Sort options aligned with backend enum (rating, views, createdAt, updatedAt, releaseYear, title)
+- [x] Route-specific default sorting (/newest, /updated, /added)
+- [x] Dynamic filter page title and count from API
+- [x] Genre slug auto-filter on /genre/:slug route
 - [ ] Full search with autocomplete (deferred to Phase 7)
 
 ### Status
 - **Completed**: 6 Feb 2026
+- **Filter fix**: 7 Feb 2026 — sort value mismatch, route defaults, dynamic Head, genre slug
 - **Commits**: `f40ed7a`, `31477eb`, `2681832`
 
 ## Phase 6 - File Uploads (NEXT)

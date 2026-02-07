@@ -33,12 +33,6 @@ const appsRoute: Routes = [
     authority: [],
   },
   {
-    key: 'app.newest',
-    path: '/newest',
-    component: lazy(() => import('@/views/filter/Filter')),
-    authority: [],
-  },
-  {
     key: 'app.updated',
     path: '/updated',
     component: lazy(() => import('@/views/filter/Filter')),

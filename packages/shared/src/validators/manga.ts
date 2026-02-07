@@ -71,6 +71,6 @@ export const mangaQueryParamsSchema = z.object({
   type: mangaTypeSchema.optional(),
   genreId: z.coerce.number().int().positive().optional(),
   search: z.string().max(200).optional(),
-  sortBy: z.enum(['rating', 'views', 'createdAt', 'title']).default('createdAt'),
+  sortBy: z.enum(['rating', 'views', 'createdAt', 'updatedAt', 'releaseYear', 'title']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 })

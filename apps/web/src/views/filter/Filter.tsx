@@ -1,16 +1,34 @@
 import React, { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 
 import { Filter, Head } from './components'
 
 import { Card, Loading } from '@/components/shared'
 import { Pagination } from '@/components/ui'
 import { useMangaList } from '@/hooks/use-manga-list'
+import { useGenres } from '@/hooks/use-genres'
 import type { MangaQueryParams, MangaStatus, MangaType } from '@mangafire/shared/types'
 import type { MangaListItem } from '@/services/manga-service'
 import { mapChaptersForCard } from '@/utils/format-manga'
 
-function buildApiParams(searchParams: URLSearchParams): MangaQueryParams {
+// Route-specific defaults: each page gets its own sort + title
+const ROUTE_CONFIG: Record<
+  string,
+  { title: string; sortBy: MangaQueryParams['sortBy']; sortOrder: 'asc' | 'desc' }
+> = {
+  '/newest': { title: 'Newest', sortBy: 'releaseYear', sortOrder: 'desc' },
+  '/updated': { title: 'Updated', sortBy: 'updatedAt', sortOrder: 'desc' },
+  '/added': { title: 'Recently Added', sortBy: 'createdAt', sortOrder: 'desc' },
+  '/filter': { title: 'Filter', sortBy: 'createdAt', sortOrder: 'desc' },
+}
+
+const DEFAULT_ROUTE_CONFIG = ROUTE_CONFIG['/filter']
+
+function buildApiParams(
+  searchParams: URLSearchParams,
+  routeDefaults: { sortBy?: MangaQueryParams['sortBy']; sortOrder?: 'asc' | 'desc' },
+  genreIdFromSlug?: number
+): MangaQueryParams {
   const params: MangaQueryParams = { limit: 30 }
   const page = searchParams.get('page')
   const keyword = searchParams.get('keyword')
@@ -22,11 +40,22 @@ function buildApiParams(searchParams: URLSearchParams): MangaQueryParams {
   if (page) params.page = Number(page)
   if (keyword) params.search = keyword
   if (type) params.type = type.split(',')[0] as MangaType
-  if (genre) params.genreId = Number(genre.split(',')[0])
   if (status) params.status = status.split(',')[0] as MangaStatus
+
+  // Genre: URL query param takes priority, then slug-derived genreId
+  if (genre) {
+    params.genreId = Number(genre.split(',')[0])
+  } else if (genreIdFromSlug) {
+    params.genreId = genreIdFromSlug
+  }
+
+  // Sort: URL query param takes priority, then route defaults
   if (sort) {
     params.sortBy = sort as MangaQueryParams['sortBy']
     params.sortOrder = 'desc'
+  } else if (routeDefaults) {
+    params.sortBy = routeDefaults.sortBy
+    params.sortOrder = routeDefaults.sortOrder
   }
 
   return params
@@ -43,19 +72,33 @@ function mapMangaToCard(m: MangaListItem) {
 }
 
 const FilterPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams({
-    page: '1',
-  })
+  const location = useLocation()
+  const { slug: genreSlug } = useParams<{ slug: string }>()
+  const { data: genres = [] } = useGenres()
+  const [searchParams, setSearchParams] = useSearchParams({ page: '1' })
   const page = searchParams.get('page') || 1
 
-  const apiParams = buildApiParams(searchParams)
+  // Derive route config based on current pathname
+  const pathname = location.pathname
+  const isGenreRoute = pathname.startsWith('/genre/')
+  const routeConfig = isGenreRoute
+    ? { title: '', sortBy: 'createdAt' as const, sortOrder: 'desc' as const }
+    : ROUTE_CONFIG[pathname] || DEFAULT_ROUTE_CONFIG
+
+  // Resolve genre slug to genreId for /genre/:slug routes
+  const genreFromSlug = genreSlug
+    ? genres.find((g) => g.slug === genreSlug)
+    : undefined
+  const pageTitle = isGenreRoute && genreFromSlug ? genreFromSlug.name : routeConfig.title
+
+  const apiParams = buildApiParams(searchParams, routeConfig, genreFromSlug?.id)
   const { data, isLoading } = useMangaList(apiParams)
   const items = data?.items ?? []
   const meta = data?.meta
 
   useEffect(() => {
-    document.title = 'Filter - MangaFire'
-  }, [])
+    document.title = `${pageTitle} - MangaFire`
+  }, [pageTitle])
 
   const handleChangePage = (page: number) => {
     setSearchParams(
@@ -98,7 +141,7 @@ const FilterPage = () => {
   return (
     <div className="container">
       <section className="mt-5">
-        <Head />
+        <Head title={pageTitle} count={meta?.total} />
         <Filter handleSubmit={handleSubmit} />
         <Loading loading={isLoading} type="gif">
           {items.length > 0 ? (

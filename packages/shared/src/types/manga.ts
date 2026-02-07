@@ -114,6 +114,6 @@ export interface MangaQueryParams {
   type?: MangaType
   genreId?: number
   search?: string
-  sortBy?: 'rating' | 'views' | 'createdAt' | 'title'
+  sortBy?: 'rating' | 'views' | 'createdAt' | 'updatedAt' | 'releaseYear' | 'title'
   sortOrder?: 'asc' | 'desc'
 }

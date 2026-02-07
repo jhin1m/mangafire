@@ -34,6 +34,8 @@ export function getSortConfig(sortBy: string, sortOrder: string) {
     rating: manga.rating,
     views: manga.views,
     createdAt: manga.createdAt,
+    updatedAt: manga.updatedAt,
+    releaseYear: manga.releaseYear,
     title: manga.title,
   } as const
 
