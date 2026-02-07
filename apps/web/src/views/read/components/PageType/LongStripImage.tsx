@@ -34,7 +34,7 @@ const LongStripImage = (props: LongStripImageProps) => {
   return (
     <div
       className={classNames('page', fitClassName[fitType])}
-      style={{ marginBottom: '30px' }}
+      style={{ marginBottom: '0px' }}
       ref={imageRef}
       id={`page-${index + 1}`}
     >

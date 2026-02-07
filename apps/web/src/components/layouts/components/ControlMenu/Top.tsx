@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   setActiveSwiper,
   setPageIndex,
@@ -15,6 +15,7 @@ import { useReader } from '@/contexts/reader-context'
 
 const Top = () => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const { isShowMenu, pageIndex, isShowSubPanel, activeSwiper } =
     useAppSelector((state) => state.theme)
   const { totalPages, chapterNumber, mangaSlug, navigation, language } = useReader()
@@ -41,6 +42,20 @@ const Top = () => {
 
   const handleTogglePanel = (type: SubPanelType) => {
     dispatch(setShowSubPanel(type === isShowSubPanel ? null : type))
+  }
+
+  // Navigate đến chapter trước đó
+  const handlePrevChapter = () => {
+    if (navigation?.prev) {
+      navigate(`/read/${mangaSlug}/${language}/chapter-${navigation.prev.number}`)
+    }
+  }
+
+  // Navigate đến chapter tiếp theo
+  const handleNextChapter = () => {
+    if (navigation?.next) {
+      navigate(`/read/${mangaSlug}/${language}/chapter-${navigation.next.number}`)
+    }
   }
 
   return (
@@ -83,13 +98,14 @@ const Top = () => {
       </nav>
       {/* Chapter */}
       <nav>
-        <Link
-          to={navigation?.prev ? `/read/${mangaSlug}/${language}/chapter-${navigation.prev.number}` : '#'}
+        <button
           id="number-go-left"
           className={!navigation?.prev ? 'disabled' : ''}
+          onClick={handlePrevChapter}
+          disabled={!navigation?.prev}
         >
           <i className="fa-regular fa-chevron-left"></i>
-        </Link>
+        </button>
         <button
           className="number-toggler"
           onClick={() => handleTogglePanel(SUB_PANEL_ENUM.PANEL_CHAPTER)}
@@ -97,13 +113,14 @@ const Top = () => {
           <b className="current-type-number text-title">chapter {chapterNumber}</b>
           <i className="fa-solid fa-sort fa-sm"></i>
         </button>
-        <Link
-          to={navigation?.next ? `/read/${mangaSlug}/${language}/chapter-${navigation.next.number}` : '#'}
+        <button
           id="number-go-right"
           className={!navigation?.next ? 'disabled' : ''}
+          onClick={handleNextChapter}
+          disabled={!navigation?.next}
         >
           <i className="fa-regular fa-chevron-right"></i>
-        </Link>
+        </button>
       </nav>
       {/* Comment */}
       <button

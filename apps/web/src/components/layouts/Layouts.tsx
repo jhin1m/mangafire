@@ -16,8 +16,12 @@ const Layout = () => {
   const { pathname } = useLocation()
   const { isShowMenu, isShowHeader } = useAppSelector((state) => state.theme)
 
+  // Check if current route is the reader — must start with "/read" (not just contain "read")
+  // e.g. "/manga/omniscient-reader" contains "read" but is NOT a reader page
+  const isReaderRoute = pathname.startsWith(`/${LAYOUT_TYPE_READ}`)
+
   useEffect(() => {
-    if (pathname.includes(LAYOUT_TYPE_READ)) {
+    if (isReaderRoute) {
       if (typeof document !== 'undefined') {
         document.body.className = 'read'
         if (isShowMenu) {
@@ -32,15 +36,15 @@ const Layout = () => {
     return () => {
       document.body.removeAttribute('class')
     }
-  }, [isShowMenu, isShowHeader, pathname])
+  }, [isShowMenu, isShowHeader, isReaderRoute])
 
   const AppLayout = useMemo(() => {
-    if (pathname.includes(LAYOUT_TYPE_READ)) {
+    if (isReaderRoute) {
       return layouts[LAYOUT_TYPE_READ]
     } else {
       return layouts[LAYOUT_TYPE_DEFAULT]
     }
-  }, [pathname])
+  }, [isReaderRoute])
 
   return (
     <Suspense

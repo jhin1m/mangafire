@@ -125,7 +125,14 @@ const ReadLayoutInner = () => {
             <div
               id="page-wrapper"
               className={classNames(
-                !isMobile && totalPages > 0 && pageIndex === totalPages && !isSwiping && 'on-last-page'
+                // on-last-page: shows chapter nav bar for single/double page modes only.
+                // Long strip doesn't need it — its nav flows naturally in the document.
+                !isMobile &&
+                  pageType !== PAGE_ENUM.LONG_STRIP &&
+                  totalPages > 0 &&
+                  pageIndex === totalPages &&
+                  !isSwiping &&
+                  'on-last-page'
               )}
               onClick={handleCloseControl}
             >

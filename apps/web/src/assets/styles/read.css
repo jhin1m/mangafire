@@ -267,7 +267,9 @@ body.read main .m-content #page-wrapper .page img {
   margin-right: auto;
   -o-object-fit: contain;
   object-fit: contain;
-  transition: all 0.3s;
+  /* Only transition opacity (for load fade-in), NOT size/max-height
+     "transition: all" caused images to zoom-animate on load and on last-page nav resize */
+  transition: opacity 0.3s;
 }
 
 body.read

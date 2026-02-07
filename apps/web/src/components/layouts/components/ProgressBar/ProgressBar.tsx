@@ -19,7 +19,8 @@ const ProgressBar = () => {
     scrollToPage(page)
   }
 
-  if (totalPages === 0) return null
+  // Ẩn hoàn toàn khi không có pages hoặc khi user chọn "No Progress" (progressPosition rỗng)
+  if (totalPages === 0 || !progressPosition) return null
 
   return (
     <div id="progress-bar" className={classNames('d-flex', progressPosition)}>
