@@ -73,4 +73,13 @@ export const mangaQueryParamsSchema = z.object({
   search: z.string().max(200).optional(),
   sortBy: z.enum(['rating', 'views', 'createdAt', 'updatedAt', 'releaseYear', 'title']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  year: z.string().max(200).optional(),
+  minChapters: z.coerce.number().int().positive().max(2000).optional(),
+  // Comma-separated string → number array (filter out invalid values, limit size)
+  excludeGenres: z.string().optional().transform((val) => {
+    if (!val) return undefined
+    const ids = val.split(',').map(Number).filter((n) => !isNaN(n) && n > 0)
+    // Limit to 50 genres, deduplicate
+    return Array.from(new Set(ids)).slice(0, 50)
+  }),
 })

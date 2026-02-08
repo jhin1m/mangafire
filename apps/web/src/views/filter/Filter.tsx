@@ -34,6 +34,7 @@ function buildApiParams(
   const keyword = searchParams.get('keyword')
   const type = searchParams.get('type')
   const genre = searchParams.get('genre')
+  const genreExclude = searchParams.get('genre_exclude')
   const status = searchParams.get('status')
   const sort = searchParams.get('sort')
 
@@ -49,14 +50,25 @@ function buildApiParams(
     params.genreId = genreIdFromSlug
   }
 
+  // Genre exclude: parse comma-separated IDs into array
+  if (genreExclude) {
+    params.excludeGenres = genreExclude.split(',').map(Number).filter((n) => !isNaN(n) && n > 0)
+  }
+
   // Sort: URL query param takes priority, then route defaults
   if (sort) {
     params.sortBy = sort as MangaQueryParams['sortBy']
-    params.sortOrder = 'desc'
+    params.sortOrder = sort === 'title' ? 'asc' : 'desc'
   } else if (routeDefaults) {
     params.sortBy = routeDefaults.sortBy
     params.sortOrder = routeDefaults.sortOrder
   }
+
+  // Year and length forwarding
+  const year = searchParams.get('year')
+  if (year) params.year = year
+  const length = searchParams.get('length')
+  if (length) params.minChapters = Number(length)
 
   return params
 }
@@ -96,6 +108,9 @@ const FilterPage = () => {
   const items = data?.items ?? []
   const meta = data?.meta
 
+  // Compute activeSort for passing to Filter component
+  const activeSort = searchParams.get('sort') || routeConfig.sortBy || 'createdAt'
+
   useEffect(() => {
     document.title = `${pageTitle} - MangaFire`
   }, [pageTitle])
@@ -114,11 +129,12 @@ const FilterPage = () => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
     const keyword = formData.get('keyword') || ''
-    const type = formData.getAll('type[]') || ''
-    const genre = formData.getAll('genre[]') || ''
-    const status = formData.getAll('status[]') || ''
-    const year = formData.getAll('year[]') || ''
-    const language = formData.getAll('language[]') || ''
+    const type = formData.getAll('type[]')
+    const genre = formData.getAll('genre[]')
+    const genreExclude = formData.getAll('genre_exclude[]').filter(Boolean) as string[]
+    const status = formData.getAll('status[]')
+    const year = formData.getAll('year[]')
+    const language = formData.getAll('language[]')
     const length = formData.get('length') || ''
     const sort = formData.get('sort') || ''
     setSearchParams(
@@ -127,6 +143,11 @@ const FilterPage = () => {
         keyword && prev.set('keyword', keyword.toString())
         type && prev.set('type', type.join(',').toString())
         genre && prev.set('genre', genre.join(',').toString())
+        if (genreExclude.length > 0) {
+          prev.set('genre_exclude', genreExclude.join(',').toString())
+        } else {
+          prev.delete('genre_exclude')
+        }
         status && prev.set('status', status.join(',').toString())
         year && prev.set('year', year.join(',').toString())
         language && prev.set('language', language.join(',').toString())
@@ -142,7 +163,7 @@ const FilterPage = () => {
     <div className="container">
       <section className="mt-5">
         <Head title={pageTitle} count={meta?.total} />
-        <Filter handleSubmit={handleSubmit} />
+        <Filter handleSubmit={handleSubmit} defaultSort={activeSort} />
         <Loading loading={isLoading} type="gif">
           {items.length > 0 ? (
             <div className="original card-lg">

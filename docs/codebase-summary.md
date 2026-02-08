@@ -85,7 +85,7 @@
 
 - **Error Handling**: Zod validation errors → formatted ApiResponse with details
 - **Pagination**: Page/limit params → offset/limit calculation → meta in response
-- **Genre Filtering**: Manga-genres junction table with cascade deletes
+- **Genre Filtering**: Manga-genres junction table with cascade deletes; tri-state genre filter (include/exclude/null) via `genreId` and `excludeGenres` query params; backend uses `NOT IN` subquery for exclusions
 - **Sorting**: Dynamic sort column/direction based on sortBy/sortOrder params
 - **Type Safety**: Shared types across monorepo, moduleResolution: "bundler" for exports resolution
 - **Authentication**: JWT with access (15m) + refresh (7d) tokens, bcrypt password hashing, middleware for protected routes

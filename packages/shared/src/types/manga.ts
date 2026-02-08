@@ -116,4 +116,7 @@ export interface MangaQueryParams {
   search?: string
   sortBy?: 'rating' | 'views' | 'createdAt' | 'updatedAt' | 'releaseYear' | 'title'
   sortOrder?: 'asc' | 'desc'
+  year?: string // Comma-separated: "2023,2022,2000s"
+  minChapters?: number // Minimum chapter count (>= value)
+  excludeGenres?: number[] // Genre IDs to exclude (NOT IN)
 }

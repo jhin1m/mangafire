@@ -2,10 +2,11 @@ import { Genre, Language, Length, Sort, Status, Type, Year } from './components'
 
 type FilterProps = {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  defaultSort?: string
 }
 
 const Filter = (props: FilterProps) => {
-  const { handleSubmit } = props
+  const { handleSubmit, defaultSort } = props
 
   return (
     <form id="filters" autoComplete="off" onSubmit={handleSubmit}>
@@ -24,7 +25,7 @@ const Filter = (props: FilterProps) => {
         <Language />
         <Year />
         <Length />
-        <Sort />
+        <Sort key={defaultSort} defaultSort={defaultSort} />
         <div>
           <button type="submit" className="btn btn-primary">
             <i className="fa-regular fa-circles-overlap fa-xs"></i>

@@ -1,9 +1,11 @@
+import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
 import { EnumFilter } from '@/@types/common'
 import { useClickOutside } from '@/utils/hooks'
 import ButtonFilter from './ButtonFilter'
-import { useState } from 'react'
 
-const data = [
+const baseData = [
   {
     id: 'year-2023',
     value: '2023',
@@ -152,12 +154,25 @@ const data = [
 ]
 
 const Year = () => {
+  const [searchParams] = useSearchParams()
+  const defaults = searchParams.get('year')?.split(',') || []
+  const defaultsKey = defaults.join(',')
+
+  const data = useMemo(
+    () => baseData.map((item) => ({
+      ...item,
+      checked: defaults.includes(item.value),
+    })),
+    [defaultsKey]
+  )
+
   const [open, setOpen] = useState(false)
   const dropdownRef = useClickOutside(() => setOpen(false))
   const onToggle = () => setOpen((prev) => !prev)
 
   return (
     <ButtonFilter
+      key={defaultsKey}
       data={data}
       open={open}
       ref={dropdownRef}

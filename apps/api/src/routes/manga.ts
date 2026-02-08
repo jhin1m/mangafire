@@ -17,9 +17,9 @@ import {
 import { calculatePagination, getOffsetLimit } from '../lib/pagination'
 import {
   buildMangaConditions,
+  buildGenreConditions,
   getSortConfig,
-  fetchMangaWithGenreFilter,
-  fetchMangaWithoutGenreFilter,
+  fetchMangaList,
   fetchMangaGenres,
   updateMangaGenreAssociations,
   enrichMangaList,
@@ -31,32 +31,12 @@ export const mangaRoutes = new Hono()
 mangaRoutes.get('/', zValidator('query', mangaQueryParamsSchema), async (c) => {
   const params = c.req.valid('query')
   const { offset, limit } = getOffsetLimit(params)
-  const conditions = buildMangaConditions(params)
+  const conditions = [
+    ...buildMangaConditions(params),
+    ...buildGenreConditions(params),
+  ]
   const { sortColumn, sortDirection } = getSortConfig(params.sortBy, params.sortOrder)
-
-  // Handle genreId filter (requires join)
-  if (params.genreId) {
-    const { items, total } = await fetchMangaWithGenreFilter(
-      params,
-      conditions,
-      sortColumn,
-      sortDirection,
-      offset,
-      limit
-    )
-    const enriched = await enrichMangaList(items)
-    const meta = calculatePagination(total, params)
-    return successResponse(c, enriched, meta)
-  }
-
-  // Without genreId filter, standard query
-  const { items, total } = await fetchMangaWithoutGenreFilter(
-    conditions,
-    sortColumn,
-    sortDirection,
-    offset,
-    limit
-  )
+  const { items, total } = await fetchMangaList(conditions, sortColumn, sortDirection, offset, limit)
   const enriched = await enrichMangaList(items)
   const meta = calculatePagination(total, params)
   return successResponse(c, enriched, meta)

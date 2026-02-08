@@ -157,6 +157,7 @@
 
 ### Search and Filtering
 - [x] Genre multi-select filtering (via filter page URL params)
+- [x] Genre include/exclude filtering (tri-state checkboxes, NOT IN subquery) — 8 Feb 2026
 - [x] Status and type dropdowns (via filter page)
 - [x] Sort options aligned with backend enum (rating, views, createdAt, updatedAt, releaseYear, title)
 - [x] Route-specific default sorting (/newest, /updated, /added)
@@ -167,7 +168,8 @@
 ### Status
 - **Completed**: 6 Feb 2026
 - **Filter fix**: 7 Feb 2026 — sort value mismatch, route defaults, dynamic Head, genre slug
-- **Commits**: `f40ed7a`, `31477eb`, `2681832`
+- **Genre exclude feature**: 8 Feb 2026 — tri-state checkboxes, backend NOT IN filtering, URL params
+- **Commits**: `f40ed7a`, `31477eb`, `2681832`, and feature branch merge
 
 ## Phase 6 - File Uploads (NEXT)
 

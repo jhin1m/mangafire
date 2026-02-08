@@ -1,4 +1,4 @@
-import { eq, and, ilike, sql, desc, asc, inArray } from 'drizzle-orm'
+import { eq, and, ilike, sql, desc, asc, inArray, or, between, gte, notInArray, type SQL } from 'drizzle-orm'
 import { db } from '../db/client'
 import { manga, mangaGenres, genres, chapters } from '../db/schema'
 import type { MangaQueryParams } from '@mangafire/shared/types'
@@ -6,6 +6,24 @@ import type { MangaQueryParams } from '@mangafire/shared/types'
 /** Escape special ILIKE characters to prevent wildcard injection */
 function escapeIlike(input: string): string {
   return input.replace(/%/g, '\\%').replace(/_/g, '\\_')
+}
+
+/** Parse year filter string into exact years and decades */
+function parseYearFilter(yearParam: string): { exactYears: number[]; decades: number[] } {
+  const exactYears: number[] = []
+  const decades: number[] = []
+  for (const val of yearParam.split(',')) {
+    const trimmed = val.trim()
+    if (!trimmed) continue
+    if (trimmed.endsWith('s')) {
+      const decade = parseInt(trimmed.slice(0, -1), 10)
+      if (!isNaN(decade)) decades.push(decade)
+    } else {
+      const year = parseInt(trimmed, 10)
+      if (!isNaN(year)) exactYears.push(year)
+    }
+  }
+  return { exactYears, decades }
 }
 
 /**
@@ -23,6 +41,54 @@ export function buildMangaConditions(params: MangaQueryParams) {
     const safeSearch = escapeIlike(params.search)
     conditions.push(ilike(manga.title, `%${safeSearch}%`))
   }
+  if (params.year) {
+    const { exactYears, decades } = parseYearFilter(params.year)
+    const yearConditions = []
+    if (exactYears.length > 0) {
+      yearConditions.push(inArray(manga.releaseYear, exactYears))
+    }
+    for (const decade of decades) {
+      yearConditions.push(between(manga.releaseYear, decade, decade + 9))
+    }
+    if (yearConditions.length > 0) {
+      conditions.push(or(...yearConditions)!)
+    }
+  }
+  if (params.minChapters) {
+    conditions.push(
+      gte(
+        sql<number>`(SELECT COUNT(*) FROM chapters WHERE chapters.manga_id = ${manga.id})`,
+        params.minChapters
+      )
+    )
+  }
+  return conditions
+}
+
+/**
+ * Builds genre-based conditions (include and exclude subqueries).
+ */
+export function buildGenreConditions(params: MangaQueryParams) {
+  const conditions = []
+
+  // Single genre include (backward compat)
+  if (params.genreId) {
+    const includeSubquery = db
+      .select({ mangaId: mangaGenres.mangaId })
+      .from(mangaGenres)
+      .where(eq(mangaGenres.genreId, params.genreId))
+    conditions.push(inArray(manga.id, includeSubquery))
+  }
+
+  // Multi-genre exclude
+  if (params.excludeGenres?.length) {
+    const excludeSubquery = db
+      .selectDistinct({ mangaId: mangaGenres.mangaId })
+      .from(mangaGenres)
+      .where(inArray(mangaGenres.genreId, params.excludeGenres))
+    conditions.push(notInArray(manga.id, excludeSubquery))
+  }
+
   return conditions
 }
 
@@ -47,77 +113,22 @@ export function getSortConfig(sortBy: string, sortOrder: string) {
 }
 
 /**
- * Fetches manga list with genreId filter (requires join).
+ * Fetches manga list with all conditions applied.
+ * Replaces fetchMangaWithGenreFilter and fetchMangaWithoutGenreFilter.
  */
-export async function fetchMangaWithGenreFilter(
-  params: MangaQueryParams,
-  conditions: ReturnType<typeof buildMangaConditions>,
+export async function fetchMangaList(
+  conditions: SQL[],
   sortColumn: ReturnType<typeof getSortConfig>['sortColumn'],
   sortDirection: ReturnType<typeof getSortConfig>['sortDirection'],
   offset: number,
   limit: number
 ) {
-  const items = await db
-    .select({
-      id: manga.id,
-      title: manga.title,
-      slug: manga.slug,
-      alternativeTitles: manga.alternativeTitles,
-      description: manga.description,
-      author: manga.author,
-      artist: manga.artist,
-      coverImage: manga.coverImage,
-      status: manga.status,
-      type: manga.type,
-      language: manga.language,
-      releaseYear: manga.releaseYear,
-      rating: manga.rating,
-      views: manga.views,
-      createdAt: manga.createdAt,
-      updatedAt: manga.updatedAt,
-    })
-    .from(manga)
-    .innerJoin(mangaGenres, eq(manga.id, mangaGenres.mangaId))
-    .where(
-      and(
-        eq(mangaGenres.genreId, params.genreId!),
-        conditions.length > 0 ? and(...conditions) : undefined
-      )
-    )
-    .orderBy(sortDirection(sortColumn))
-    .limit(limit)
-    .offset(offset)
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
-  const countResult = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(manga)
-    .innerJoin(mangaGenres, eq(manga.id, mangaGenres.mangaId))
-    .where(
-      and(
-        eq(mangaGenres.genreId, params.genreId!),
-        conditions.length > 0 ? and(...conditions) : undefined
-      )
-    )
-
-  const total = Number(countResult[0]?.count || 0)
-
-  return { items, total }
-}
-
-/**
- * Fetches manga list without genreId filter.
- */
-export async function fetchMangaWithoutGenreFilter(
-  conditions: ReturnType<typeof buildMangaConditions>,
-  sortColumn: ReturnType<typeof getSortConfig>['sortColumn'],
-  sortDirection: ReturnType<typeof getSortConfig>['sortDirection'],
-  offset: number,
-  limit: number
-) {
   const items = await db
     .select()
     .from(manga)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .where(whereClause)
     .orderBy(sortDirection(sortColumn))
     .limit(limit)
     .offset(offset)
@@ -125,7 +136,7 @@ export async function fetchMangaWithoutGenreFilter(
   const countResult = await db
     .select({ count: sql<number>`count(*)` })
     .from(manga)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .where(whereClause)
 
   const total = Number(countResult[0]?.count || 0)
 

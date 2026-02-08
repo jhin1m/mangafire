@@ -18,4 +18,5 @@ export type CommonFilterProps = {
   open: boolean
   dropdownClassName?: string
   type?: 'checkbox' | 'radio'
+  triState?: boolean // Enable tri-state cycling (Genre filter)
 }

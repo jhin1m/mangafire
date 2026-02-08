@@ -122,8 +122,10 @@ PostgreSQL (3 tables, relations, indexes)
 
 GET /api/manga:
 - `page` (default: 1), `limit` (default: 20, max: 100)
-- `status`, `type`, `genreId`, `search`
+- `status`, `type`, `search`
+- `genreId` (include genres), `excludeGenres` (array, exclude genres via NOT IN)
 - `sortBy` (default: createdAt), `sortOrder` (default: desc)
+- `year` (comma-separated: "2023,2022"), `minChapters` (minimum chapter count)
 
 GET /api/manga/:slug/chapters:
 - `page`, `limit` (default: 20, max: 100)
