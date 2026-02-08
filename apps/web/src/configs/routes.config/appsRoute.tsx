@@ -21,6 +21,12 @@ const appsRoute: Routes = [
     authority: [],
   },
   {
+    key: 'app.search',
+    path: '/search',
+    component: lazy(() => import('@/views/search')),
+    authority: [],
+  },
+  {
     key: 'app.genre',
     path: '/genre/:slug',
     component: lazy(() => import('@/views/filter/Filter')),

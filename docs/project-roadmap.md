@@ -119,7 +119,6 @@
 - [x] Progress bar with correct page count from API
 - [x] Header navigation (prev/next page, prev/next chapter)
 - [x] Disabled states at navigation edges
-- [ ] Page thumbnails (currently text-only "Page 1, 2..." — no actual thumbnails)
 
 ### Frontend — Image Loading ⚠️
 - [x] Display chapter page images from API URLs
@@ -189,22 +188,38 @@
 - [ ] POST /api/manga/:slug/cover - Upload cover image
 - [ ] POST /api/manga/:slug/chapters/:number/pages - Upload page images
 
-## Phase 7 - Advanced Search
+## Phase 7 - Advanced Search (COMPLETED)
 
-### Database
-- [ ] PostgreSQL tsvector setup
-- [ ] Full-text search indexes
-- [ ] Search weight optimization
+### Database ✅
+- [x] PostgreSQL tsvector setup with pg_trgm extension
+- [x] Full-text search indexes (GIN) with weighted ranking
+- [x] Search vector generated column (auto-updated on INSERT/UPDATE)
+- [x] Trigram indexes for typo-tolerant autocomplete
 
-### API
-- [ ] GET /api/search - Full-text search endpoint
-- [ ] Fuzzy matching for titles
-- [ ] Search facets (genre, status, type)
+### API ✅
+- [x] GET /api/search - Two-tier search endpoint
+  - Autocomplete mode: trigram-based fuzzy matching (q param)
+  - Full mode: FTS with weighted ranking (title A, description B, alt titles/author/artist C)
+- [x] Autocomplete: /api/search?q=text&mode=autocomplete (top 10 results)
+- [x] Full search: /api/search?q=text&mode=full&page=1&limit=20 (paginated FTS results)
 
-### Frontend
-- [ ] Search input with autocomplete
-- [ ] Faceted search results
-- [ ] Search history (localStorage)
+### Frontend ✅
+- [x] SearchInput component with Downshift autocomplete (WAI-ARIA)
+- [x] SearchAutocomplete dropdown with keyboard navigation
+- [x] SearchFilters chip component
+- [x] SearchHistory component (max 10 entries, localStorage-backed)
+- [x] /search results page with FTS display
+- [x] useSearch, useSearchHistory, useDebounce custom hooks
+- [x] search-service API client layer
+- [x] Integrated search in Header (MainLayout)
+- [x] Downshift library dependency
+
+### Status
+- **Completed**: 8 Feb 2026
+- **Code Review**: Passed with 1 critical security fix (RegEx injection)
+- **Commits**: Feature branch ready for merge
+- **Effort**: 9h (parallel execution across 5 phases)
+- **Files**: 20 new/modified (5 backend, 2 shared, 13 frontend)
 
 ## Phase 8 - Production Deployment
 

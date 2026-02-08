@@ -128,32 +128,39 @@ const FilterPage = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
-    const keyword = formData.get('keyword') || ''
-    const type = formData.getAll('type[]')
-    const genre = formData.getAll('genre[]')
+    const keyword = (formData.get('keyword') || '').toString()
+    // Radio inputs (single-select): get() returns single value
+    const type = (formData.get('type') || '').toString()
+    const status = (formData.get('status') || '').toString()
+    const language = (formData.get('language') || '').toString()
+    const length = (formData.get('length') || '').toString()
+    const sort = (formData.get('sort') || '').toString()
+    // Checkbox inputs (multi-select): getAll() returns array
+    const genre = formData.getAll('genre[]').filter(Boolean) as string[]
     const genreExclude = formData.getAll('genre_exclude[]').filter(Boolean) as string[]
-    const status = formData.getAll('status[]')
-    const year = formData.getAll('year[]')
-    const language = formData.getAll('language[]')
-    const length = formData.get('length') || ''
-    const sort = formData.get('sort') || ''
+    const year = formData.getAll('year[]').filter(Boolean) as string[]
+
+    // Helper: set param if value exists, delete if empty
+    const setOrDelete = (params: URLSearchParams, key: string, value: string) => {
+      if (value) params.set(key, value)
+      else params.delete(key)
+    }
+
     setSearchParams(
-      (prev) => {
-        prev.set('page', page.toString())
-        keyword && prev.set('keyword', keyword.toString())
-        type && prev.set('type', type.join(',').toString())
-        genre && prev.set('genre', genre.join(',').toString())
-        if (genreExclude.length > 0) {
-          prev.set('genre_exclude', genreExclude.join(',').toString())
-        } else {
-          prev.delete('genre_exclude')
-        }
-        status && prev.set('status', status.join(',').toString())
-        year && prev.set('year', year.join(',').toString())
-        language && prev.set('language', language.join(',').toString())
-        length && prev.set('length', length.toString())
-        sort && prev.set('sort', sort?.toString())
-        return prev
+      () => {
+        // Start fresh — only keep params that have values
+        const params = new URLSearchParams()
+        params.set('page', '1')
+        setOrDelete(params, 'keyword', keyword)
+        setOrDelete(params, 'type', type)
+        setOrDelete(params, 'status', status)
+        setOrDelete(params, 'language', language)
+        setOrDelete(params, 'length', length)
+        setOrDelete(params, 'sort', sort)
+        setOrDelete(params, 'genre', genre.join(','))
+        setOrDelete(params, 'genre_exclude', genreExclude.join(','))
+        setOrDelete(params, 'year', year.join(','))
+        return params
       },
       { replace: true }
     )

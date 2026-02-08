@@ -17,15 +17,14 @@ const baseData = [
 
 const Language = () => {
   const [searchParams] = useSearchParams()
-  const defaults = searchParams.get('language')?.split(',') || []
-  const defaultsKey = defaults.join(',')
+  const defaultValue = searchParams.get('language') || ''
 
   const data = useMemo(
     () => baseData.map((item) => ({
       ...item,
-      checked: defaults.includes(item.value),
+      checked: item.value === defaultValue,
     })),
-    [defaultsKey]
+    [defaultValue]
   )
 
   const [open, setOpen] = useState(false)
@@ -34,9 +33,10 @@ const Language = () => {
 
   return (
     <ButtonFilter
-      key={defaultsKey}
+      key={defaultValue}
       data={data}
       open={open}
+      type="radio"
       ref={dropdownRef}
       onToggle={onToggle}
       value={EnumFilter.language}

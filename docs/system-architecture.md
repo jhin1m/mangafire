@@ -33,7 +33,7 @@ PostgreSQL (3 tables, relations, indexes)
 
 | Table | Purpose | Key Fields |
 |-------|---------|-----------|
-| `manga` | Core manga metadata | id, title, slug (unique), status, type, language, rating, views, timestamps |
+| `manga` | Core manga metadata | id, title, slug (unique), status, type, language, rating, views, **search_vector (generated tsvector)**, timestamps |
 | `genres` | Available genres/categories | id, name (unique), slug (unique), description, timestamps |
 | `manga_genres` | Many-to-many junction | id, mangaId (FK), genreId (FK), unique constraint |
 | `users` | User accounts | id, email (unique), passwordHash, username, role, timestamps, deletedAt |
@@ -51,6 +51,8 @@ PostgreSQL (3 tables, relations, indexes)
 - `manga.slug` - fast lookups by slug
 - `manga.status` - filtering by status
 - `manga.type` - filtering by type
+- `manga.search_vector` (GIN) - full-text search acceleration
+- `manga.search_vector` (trigram) - autocomplete fuzzy matching via pg_trgm
 - `manga_genres.manga_id` - join lookups
 - `manga_genres.genre_id` - genre lookups
 - `users.email` - login lookups
@@ -81,6 +83,7 @@ PostgreSQL (3 tables, relations, indexes)
 |--------|------|-------------|------|
 | GET | `/api/health` | Health check | None |
 | GET | `/api/genres` | List all genres | None |
+| GET | `/api/search` | Full-text search (autocomplete + full modes) | None |
 
 ### Manga
 | Method | Path | Description | Auth |
@@ -119,6 +122,11 @@ PostgreSQL (3 tables, relations, indexes)
 | DELETE | `/api/manga/:slug/volumes/:number` | Delete volume (chapters.volumeId → null) | Required |
 
 **Query Parameters**
+
+GET /api/search:
+- `q` (search query, required)
+- `mode` (autocomplete|full, default: full)
+- `page`, `limit` (pagination for full mode, default: 1, 20)
 
 GET /api/manga:
 - `page` (default: 1), `limit` (default: 20, max: 100)
@@ -193,6 +201,27 @@ Zod Validation (zValidator middleware)
 - `theme` slice: page type, read direction, fit type, progress position → persisted
 
 **Code Splitting**: Routes use React `lazy()` for bundle optimization
+
+## Search Architecture
+
+### Full-Text Search Strategy
+- **Indexing**: PostgreSQL native FTS with tsvector generated column (auto-updated on INSERT/UPDATE)
+- **Search Modes**:
+  - **Autocomplete** (trigram): Fast typo-tolerant prefix matching via pg_trgm similarity threshold (0.3)
+  - **Full** (FTS): Semantic ranking with weighted fields — title (A), description (B), alt titles/author/artist (C)
+- **Config**: 'simple' language config (language-agnostic for mixed-language manga catalog)
+- **Indexes**: GIN indexes on search_vector for FTS, btree indexes on trigram similarity
+
+### Search Response
+- Autocomplete returns top 10 items: `{ id, title, slug, alternativeTitles }`
+- Full search returns paginated results with FTS rank + metadata
+
+### Frontend Integration
+- **Headless Autocomplete**: Downshift component with WAI-ARIA keyboard navigation
+- **Debouncing**: 300ms debounce on user input (useDebounce hook)
+- **Caching**: TanStack Query manages search results with 5min staleTime
+- **History**: localStorage-backed recent searches (max 10 entries, localStorage)
+- **Input Handling**: XSS-safe with HTML escaping, RegEx injection protection
 
 ## CORS Configuration
 

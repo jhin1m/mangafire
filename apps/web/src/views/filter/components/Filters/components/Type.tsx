@@ -16,15 +16,14 @@ const baseData = [
 
 const Type = () => {
   const [searchParams] = useSearchParams()
-  const defaults = searchParams.get('type')?.split(',') || []
-  const defaultsKey = defaults.join(',')
+  const defaultValue = searchParams.get('type') || ''
 
   const data = useMemo(
     () => baseData.map((item) => ({
       ...item,
-      checked: defaults.includes(item.value),
+      checked: item.value === defaultValue,
     })),
-    [defaultsKey]
+    [defaultValue]
   )
 
   const [open, setOpen] = useState(false)
@@ -33,9 +32,10 @@ const Type = () => {
 
   return (
     <ButtonFilter
-      key={defaultsKey}
+      key={defaultValue}
       data={data}
       open={open}
+      type="radio"
       ref={dropdownRef}
       onToggle={onToggle}
       value={EnumFilter.type}

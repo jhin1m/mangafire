@@ -157,7 +157,9 @@ const ButtonFilter = forwardRef<HTMLDivElement, CommonFilterProps>(
                 {data.map((item) => {
                   const itemState = triState ? genreStates.get(item.value) ?? null : null
                   const isExclude = itemState === 'exclude'
-                  const isChecked = triState ? itemState !== null : item.checked
+                  // triState: controlled by genreStates; non-triState: uncontrolled (defaultChecked)
+                  // so FormData can collect user's actual selection
+                  const isCheckedTriState = itemState !== null
 
                   return (
                     <li key={item.id}>
@@ -166,7 +168,10 @@ const ButtonFilter = forwardRef<HTMLDivElement, CommonFilterProps>(
                         id={item.id}
                         name={triState ? undefined : (type === 'checkbox' ? `${value}[]` : value)}
                         value={item.value}
-                        checked={isChecked}
+                        {...(triState
+                          ? { checked: isCheckedTriState }
+                          : { defaultChecked: item.checked }
+                        )}
                         className={classNames(isExclude && 'exclude')}
                         onChange={triState ? undefined : (e) => handleChange(item.label, e.target.checked)}
                         onClick={triState ? (e) => handleTriStateClick(item.value, item.label, e) : undefined}

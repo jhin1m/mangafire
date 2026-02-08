@@ -59,6 +59,8 @@ export const manga = pgTable(
     views: integer('views').default(0),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    // search_vector is a GENERATED ALWAYS column created by SQL migration
+    // Not managed by Drizzle push — included here for query type support only
   },
   (table) => ({
     slugIdx: index('manga_slug_idx').on(table.slug),

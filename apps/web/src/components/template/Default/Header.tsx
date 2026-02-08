@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react'
 import classNames from 'classnames'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useCombobox } from 'downshift'
 import NavMobile from './NavMobile'
 import Modal, { Forgot, Login, Register } from '@/components/ui/Modal'
 import { MODAL_AUTH_ENUM } from '@/@types/modal'
 import { useClickOutside } from '@/utils/hooks'
+import { SearchInput } from '@/components/shared/SearchInput'
+import { SearchAutocomplete } from '@/components/shared/SearchAutocomplete'
+import { SearchHistory } from '@/components/shared/SearchHistory'
+import { useDebounce } from '@/hooks/use-debounce'
+import { useSearchAutocomplete } from '@/hooks/use-search'
+import { useSearchHistory } from '@/hooks/use-search-history'
 
 export const genres = [
   { title: 'Action', link: '/genre/action' },
@@ -51,15 +58,61 @@ export const genres = [
 ]
 
 const Header = () => {
+  const navigate = useNavigate()
   const [openSearch, setOpenSearch] = useState(false)
   const [openNav, setOpenNav] = useState(false)
   const [toggleMenu, setToggleMenu] = useState<'type' | 'genre' | null>(null)
   const [openModal, setOpenModal] = useState(MODAL_AUTH_ENUM.CLOSE)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const debouncedQuery = useDebounce(searchQuery, 300)
+  const { data: suggestions = [], isLoading: isSearching } = useSearchAutocomplete(debouncedQuery)
+  const { history, addEntry, removeEntry, clearHistory } = useSearchHistory()
 
   const navRef = useClickOutside(() => handleCloseNav())
 
   const handleOpen = () => setOpenSearch(true)
-  const handleClose = () => setOpenSearch(false)
+  const handleClose = () => {
+    setOpenSearch(false)
+    setSearchQuery('')
+  }
+
+  // Navigate to full search results page
+  const handleSearchSubmit = (q: string) => {
+    const trimmed = q.trim()
+    if (!trimmed) return
+    addEntry(trimmed)
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`)
+    setSearchQuery('')
+    handleClose()
+  }
+
+  // Navigate to manga detail when selecting autocomplete item
+  const handleSelectManga = (slug: string) => {
+    navigate(`/manga/${slug}`)
+    setSearchQuery('')
+    handleClose()
+  }
+
+  const {
+    isOpen,
+    highlightedIndex,
+    getInputProps,
+    getMenuProps,
+    getItemProps,
+  } = useCombobox({
+    items: suggestions,
+    inputValue: searchQuery,
+    onInputValueChange: ({ inputValue }) => {
+      setSearchQuery(inputValue || '')
+    },
+    onSelectedItemChange: ({ selectedItem }) => {
+      if (selectedItem) {
+        handleSelectManga(selectedItem.slug)
+      }
+    },
+    itemToString: (item) => item?.title || '',
+  })
 
   const handleToggleNav = () => setOpenNav((prev) => !prev)
   const handleCloseNav = () => {
@@ -172,19 +225,49 @@ const Header = () => {
             <div id="nav-search" className={classNames(openSearch && 'active')}>
               <div className="overlay" onClick={handleClose}></div>
               <div className="search-inner">
-                <form action="filter" autoComplete="off">
-                  <i className="fa-regular fa-magnifying-glass text-muted mr-1"></i>
-                  <input
-                    type="text"
-                    placeholder="Search manga..."
-                    name="keyword"
+                {/* Keep <form> to preserve original app.css styling (#nav-search .search-inner form) */}
+                <form autoComplete="off" onSubmit={(e) => { e.preventDefault(); handleSearchSubmit(searchQuery) }}>
+                  <SearchInput
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onClear={() => setSearchQuery('')}
+                    isLoading={isSearching}
+                    inputProps={{
+                      ...getInputProps({
+                        onKeyDown: (e: React.KeyboardEvent) => {
+                          if (e.key === 'Enter' && highlightedIndex < 0) {
+                            e.preventDefault()
+                            handleSearchSubmit(searchQuery)
+                          }
+                          if (e.key === 'Escape') {
+                            handleClose()
+                          }
+                        },
+                      }),
+                    }}
                   />
                   <Link to="filter" className="btn btn-primary2">
                     <i className="fa-regular fa-circles-overlap fa-xs"></i>
                     <span>Filter</span>
                   </Link>
                 </form>
-                <div className="suggestion"></div>
+                <SearchAutocomplete
+                  items={suggestions}
+                  isOpen={isOpen && suggestions.length > 0}
+                  highlightedIndex={highlightedIndex}
+                  getItemProps={getItemProps}
+                  inputValue={searchQuery}
+                  getMenuProps={getMenuProps}
+                  onViewAll={() => handleSearchSubmit(searchQuery)}
+                />
+                {!searchQuery && history.length > 0 && isOpen && (
+                  <SearchHistory
+                    items={history}
+                    onSelect={(q) => handleSearchSubmit(q)}
+                    onRemove={removeEntry}
+                    onClear={clearHistory}
+                  />
+                )}
               </div>
             </div>
             <button

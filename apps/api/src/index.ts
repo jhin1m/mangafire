@@ -7,6 +7,7 @@ import { genreRoutes } from './routes/genres'
 import { authRoutes } from './routes/auth'
 import { chapterRoutes } from './routes/chapters'
 import { volumeRoutes } from './routes/volumes'
+import { searchRoutes } from './routes/search'
 import { errorHandler } from './middleware/error-handler'
 import { authMiddleware } from './middleware/auth'
 
@@ -29,6 +30,7 @@ app.use(
 app.route('/api/health', healthRoutes)
 app.route('/api/auth', authRoutes)
 app.route('/api/genres', genreRoutes)
+app.route('/api/search', searchRoutes)
 
 // Manga: GET is public, write ops (POST/PUT/PATCH/DELETE) require auth
 app.use('/api/manga/*', async (c, next) => {

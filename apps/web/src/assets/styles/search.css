@@ -1,0 +1,328 @@
+/* Search Input — standalone mode (e.g. /search page) */
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1a2332;
+  border: 1px solid #2a3441;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.search-input-wrapper input::placeholder {
+  color: #5a6573;
+}
+
+.search-input-wrapper .search-icon {
+  color: #5a6573;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper .search-clear-btn {
+  background: none;
+  border: none;
+  color: #5a6573;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper .search-clear-btn:hover {
+  color: #e0e0e0;
+}
+
+/* Reset when inside Header — parent <form> already provides styling via app.css */
+#nav-search .search-input-wrapper {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+  flex-grow: 1;
+}
+
+#nav-search .search-input-wrapper input {
+  color: #fff;
+  flex-grow: 1;
+}
+
+#nav-search .search-input-wrapper input::placeholder {
+  color: #747c88;
+}
+
+#nav-search .search-input-wrapper .search-icon {
+  color: #747c88;
+  margin-right: 0.3rem;
+}
+
+/* Loading spinner */
+.search-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #2a3441;
+  border-top-color: #4a9eff;
+  border-radius: 50%;
+  animation: search-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes search-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hide empty autocomplete container (Downshift requires it in DOM) */
+.search-autocomplete.hidden {
+  display: none;
+}
+
+/* Autocomplete Dropdown */
+.search-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #182335;
+  border: 1px solid #1e2c43;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  margin-top: -1rem;
+  padding-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-autocomplete-item:hover,
+.search-autocomplete-item.highlighted {
+  background: #1e2c43;
+}
+
+.search-autocomplete-item img {
+  width: 40px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-item .cover-placeholder {
+  width: 40px;
+  height: 56px;
+  background: #2a3441;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-item .autocomplete-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-autocomplete-item .title {
+  color: #e0e0e0;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-autocomplete-item .meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #5a6573;
+  margin-top: 2px;
+}
+
+.search-autocomplete-item .meta .status {
+  color: #4a9eff;
+}
+
+.search-autocomplete-item .meta .separator {
+  color: #3a4553;
+}
+
+.search-autocomplete-item mark {
+  color: #4a9eff;
+  background: transparent;
+}
+
+/* "View all results" button at bottom of autocomplete */
+.search-autocomplete-view-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: #4a9eff;
+  font-size: 13px;
+  border-top: 1px solid #1e2c43;
+  transition: background 0.15s;
+}
+
+.search-autocomplete-view-all:hover {
+  background: #1e2c43;
+}
+
+/* Filter Chips */
+.search-filters-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.search-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #1a2332;
+  border: 1px solid #2a3441;
+  border-radius: 16px;
+  color: #e0e0e0;
+  font-size: 12px;
+}
+
+.search-filter-chip button {
+  background: none;
+  border: none;
+  color: #5a6573;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.search-filter-chip button:hover {
+  color: #e0e0e0;
+}
+
+.search-filters-clear {
+  background: none;
+  border: none;
+  color: #4a9eff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.search-filters-clear:hover {
+  text-decoration: underline;
+}
+
+/* Search History */
+.search-history {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #182335;
+  border: 1px solid #1e2c43;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+  z-index: 1;
+  padding: 8px 0;
+  margin-top: -1rem;
+  padding-top: 1rem;
+}
+
+.search-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px 8px;
+  border-bottom: 1px solid #1e2c43;
+}
+
+.search-history-header span {
+  color: #5a6573;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-history-header button {
+  background: none;
+  border: none;
+  color: #4a9eff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.search-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-history-item:hover {
+  background: #1e2c43;
+}
+
+.search-history-item .history-icon {
+  color: #5a6573;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.search-history-item .history-text {
+  flex: 1;
+  color: #e0e0e0;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-history-item .history-remove {
+  background: none;
+  border: none;
+  color: #5a6573;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.search-history-item:hover .history-remove {
+  opacity: 1;
+}
+
+.search-history-item .history-remove:hover {
+  color: #e0e0e0;
+}

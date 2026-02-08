@@ -1,4 +1,4 @@
-import type { MangaQueryParams, ChapterQueryParams, PaginationParams } from '@mangafire/shared/types'
+import type { MangaQueryParams, ChapterQueryParams, PaginationParams, SearchParams } from '@mangafire/shared/types'
 
 export const queryKeys = {
   manga: {
@@ -15,5 +15,9 @@ export const queryKeys = {
   },
   volumes: {
     list: (slug: string, params?: PaginationParams) => ['volumes', slug, params] as const,
+  },
+  search: {
+    autocomplete: (q: string) => ['search', 'autocomplete', q] as const,
+    full: (params: SearchParams) => ['search', 'full', params] as const,
   },
 }
